@@ -53,8 +53,9 @@ def find_image_points(cal_image_file_names, object_points,  display_images = Tru
         # Find the chessboard corners
         ret, corners = cv2.findChessboardCorners(gray, (9,6),None)
 
-        print(ret)
-        if ret:
+        if not ret:
+        	print("Couldn't find all points in", cal_image_filename)
+        else:
             img_p_list.append(corners)
             obj_p_list.append(object_points)
 
@@ -80,25 +81,37 @@ objpoints = [] # 3d points in real world space
 imgpoints = [] # 2d points in image plane.
 
 # Make a list of calibration images
+print("Reading calibration images from: ./camera_cal/...")
 cal_images = glob.glob('./camera_cal/calibration*.jpg')
+
+#Find image points
+print("Finding image points")
 objpoints, imgpoints = find_image_points(cal_images, objp, False)
+
+
+#Calculate distortion coefficients
+print("Calculating distorsion matrix")
 first_image = cv2.imread('./camera_cal/calibration1.jpg')  
 image_shape = (first_image.shape[1], first_image.shape[0])
 mtx, dist = calibrate_cam(objpoints, imgpoints, image_shape)
 calibration_parameters = {"mtx":mtx, "dist":dist}
 
 #Undistort all test images
+print("Applying undistrotion to test images from ./test_images/...")
 for image_name in glob.glob('./test_images/test*.jpg'):
     image = cv2.imread(image_name)    
     undistorted = cal_undistort(image, mtx, dist)
 
-    output_name = "./output_images/" + image_name.split('/')[-1]
+    output_name = "./output_images/camera_calibration/" + image_name.split('/')[-1]
     cv2.imwrite(output_name, undistorted)
     #cv2.imshow('img',undistorted)
     cv2.waitKey(500)
 
 #store calibration coeff:
-
-with open("./camera_cal_out/calibration_parameters.p", 'wb') as p_out:
+coeff_out_path = "./machine_generated_files/calibration_parameters.p"
+print("saving calibration coefficients here:\n\t" + coeff_out_path)
+with open(coeff_out_path, 'wb') as p_out:
     # Pickle the 'data' dictionary using the highest protocol available.
     pickle.dump(calibration_parameters, p_out)
+
+print("Done")
