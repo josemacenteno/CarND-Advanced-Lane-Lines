@@ -104,7 +104,18 @@ for image_name in glob.glob('./test_images/test*.jpg'):
 
     output_name = "./output_images/camera_calibration/" + image_name.split('/')[-1]
     cv2.imwrite(output_name, undistorted)
-    #cv2.imshow('img',undistorted)
+    cv2.imshow('img',undistorted)
+    cv2.waitKey(500)
+
+#Undistort all chessboard images
+print("Applying undistrotion to chessboard images from ./test_images/...")
+for image_name in cal_images:
+    image = cv2.imread(image_name)    
+    undistorted = cal_undistort(image, mtx, dist)
+
+    output_name = "./output_images/camera_calibration/" + image_name.split('/')[-1]
+    cv2.imwrite(output_name, undistorted)
+    cv2.imshow('img',undistorted)
     cv2.waitKey(500)
 
 #store calibration coeff:
