@@ -112,9 +112,13 @@ print("Applying undistrotion to chessboard images from ./test_images/...")
 for image_name in cal_images:
     image = cv2.imread(image_name)    
     undistorted = cal_undistort(image, mtx, dist)
+    small = cv2.resize(image,(128, 72))
+    small_u = cv2.resize(undistorted,(128, 72))
 
-    output_name = "./output_images/camera_calibration/" + image_name.split('/')[-1]
-    cv2.imwrite(output_name, undistorted)
+    output_name = "./output_images/camera_calibration/original_" + image_name.split('/')[-1]
+    cv2.imwrite(output_name, small)
+    output_name = "./output_images/camera_calibration/undistorted_" + image_name.split('/')[-1]
+    cv2.imwrite(output_name, small_u)
     cv2.imshow('img',undistorted)
     cv2.waitKey(500)
 
