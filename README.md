@@ -18,8 +18,8 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[distort]: ./camera_cal/calibration1.jpg "Disistorted chessboard"
-[undistort]: ./output_images/camera_calibration/calibration1.jpg "Undistorted chessboard"
+[distort]: ./output_images/camera_calibration/original_calibration1.jpg "Disistorted chessboard"
+[undistort]: ./output_images/camera_calibration/undistorted_calibration1.jpg "Undistorted chessboard"
 [image2]: ./test_images/test1.jpg "Road Transformed"
 [image3]: ./examples/binary_combo_example.jpg "Binary Example"
 [image4]: ./examples/warped_straight_lines.jpg "Warp Example"
@@ -48,7 +48,7 @@ I start by preparing "object points", which will be the (x, y, z) coordinates of
 
 I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  I applied this distortion correction to the test image using the `cv2.undistort()` function and obtained this result: 
 
-![alt text][distort] ![alt text][undistort]
+![alt text][distort]        ![alt text][undistort]
 
 ### Pipeline (single images)
 
