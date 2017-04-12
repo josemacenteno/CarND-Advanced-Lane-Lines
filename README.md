@@ -18,8 +18,18 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[distort]: ./output_images/camera_calibration/original_calibration1.jpg "Disistorted chessboard"
-[undistort]: ./output_images/camera_calibration/undistorted_calibration1.jpg "Undistorted chessboard"
+[distort2]: ./output_images/camera_calibration/original_calibration2.jpg "Disistorted chessboard"
+[undistort2]: ./output_images/camera_calibration/undistorted_calibration2.jpg "Undistorted chessboard"
+[distort3]: ./output_images/camera_calibration/original_calibration3.jpg "Disistorted chessboard"
+[undistort3]: ./output_images/camera_calibration/undistorted_calibration3.jpg "Undistorted chessboard"
+[distort5]: ./output_images/camera_calibration/original_calibration5.jpg "Disistorted chessboard"
+[undistort5]: ./output_images/camera_calibration/undistorted_calibration5.jpg "Undistorted chessboard"
+[distort6]: ./output_images/camera_calibration/original_calibration6.jpg "Disistorted chessboard"
+[undistort6]: ./output_images/camera_calibration/undistorted_calibration6.jpg "Undistorted chessboard"
+[distort7]: ./output_images/camera_calibration/original_calibration7.jpg "Disistorted chessboard"
+[undistort7]: ./output_images/camera_calibration/undistorted_calibration7.jpg "Undistorted chessboard"
+[distort8]: ./output_images/camera_calibration/original_calibration8.jpg "Disistorted chessboard"
+[undistort8]: ./output_images/camera_calibration/undistorted_calibration8.jpg "Undistorted chessboard"
 [image2]: ./test_images/test1.jpg "Road Transformed"
 [image3]: ./examples/binary_combo_example.jpg "Binary Example"
 [image4]: ./examples/warped_straight_lines.jpg "Warp Example"
@@ -48,7 +58,12 @@ I start by preparing "object points", which will be the (x, y, z) coordinates of
 
 I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  I applied this distortion correction to the test image using the `cv2.undistort()` function and obtained this result: 
 
-![alt text][distort]        ![alt text][undistort]
+![alt text][distort2]        ![alt text][undistort2]
+![alt text][distort3]        ![alt text][undistort3]
+![alt text][distort5]        ![alt text][undistort5]
+![alt text][distort6]        ![alt text][undistort6]
+![alt text][distort7]        ![alt text][undistort7]
+![alt text][distort8]        ![alt text][undistort8]
 
 ### Pipeline (single images)
 
