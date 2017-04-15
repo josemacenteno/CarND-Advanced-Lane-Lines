@@ -26,6 +26,21 @@ The goals / steps of this project are the following:
 [undistort5]: ./output_images/camera_calibration/undistorted_calibration5.jpg "Undistorted chessboard"
 [distort6]: ./output_images/camera_calibration/original_calibration6.jpg "Disistorted chessboard"
 [undistort6]: ./output_images/camera_calibration/undistorted_calibration6.jpg "Undistorted chessboard"
+
+
+[distort1]: ./output_images/camera_calibration/original_test1.jpg "Disistorted test1"
+[undistort1]: ./output_images/camera_calibration/undistorted_test1.jpg "Undistorted test1"
+[distort2]: ./output_images/camera_calibration/original_test2.jpg "Disistorted test2"
+[undistort2]: ./output_images/camera_calibration/undistorted_test2.jpg "Undistorted test2"
+[distort3]: ./output_images/camera_calibration/original_test3.jpg "Disistorted test3"
+[undistort3]: ./output_images/camera_calibration/undistorted_test3.jpg "Undistorted test3"
+[distort4]: ./output_images/camera_calibration/original_test4.jpg "Disistorted test4"
+[undistort4]: ./output_images/camera_calibration/undistorted_test4.jpg "Undistorted test4"
+[distort5]: ./output_images/camera_calibration/original_test5.jpg "Disistorted test5"
+[undistort5]: ./output_images/camera_calibration/undistorted_test5.jpg "Undistorted test5"
+[distort6]: ./output_images/camera_calibration/original_test6.jpg "Disistorted test6"
+[undistort6]: ./output_images/camera_calibration/undistorted_test6.jpg "Undistorted test6"
+
 [distort7]: ./output_images/camera_calibration/original_calibration7.jpg "Disistorted chessboard"
 [undistort7]: ./output_images/camera_calibration/undistorted_calibration7.jpg "Undistorted chessboard"
 [distort8]: ./output_images/camera_calibration/original_calibration8.jpg "Disistorted chessboard"
