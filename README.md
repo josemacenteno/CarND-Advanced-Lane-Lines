@@ -31,7 +31,6 @@ The goals / steps of this project are the following:
 [distort8]: ./output_images/camera_calibration/original_calibration8.jpg "Disistorted chessboard"
 [undistort8]: ./output_images/camera_calibration/undistorted_calibration8.jpg "Undistorted chessboard"
 
-
 [test_d1]: ./output_images/camera_calibration/original_test1.jpg "Disistorted test1"
 [test_u1]: ./output_images/camera_calibration/undistorted_test1.jpg "Undistorted test1"
 [test_d2]: ./output_images/camera_calibration/original_test2.jpg "Disistorted test2"
@@ -44,6 +43,7 @@ The goals / steps of this project are the following:
 [test_u5]: ./output_images/camera_calibration/undistorted_test5.jpg "Undistorted test5"
 [test_d6]: ./output_images/camera_calibration/original_test6.jpg "Disistorted test6"
 [test_u6]: ./output_images/camera_calibration/undistorted_test6.jpg "Undistorted test6"
+
 [image2]: ./test_images/test1.jpg "Road Transformed"
 [image3]: ./examples/binary_combo_example.jpg "Binary Example"
 [image4]: ./examples/warped_straight_lines.jpg "Warp Example"
@@ -90,20 +90,18 @@ I then used the output `objpoints` and `imgpoints` to compute the camera calibra
 To demonstrate this step, I will show all the test images before and after applying distortion correction
 
 
+![alt text][test_d1]        ![alt text][test_u1]
+
 ![alt text][test_d2]        ![alt text][test_u2]
 
 ![alt text][test_d3]        ![alt text][test_u3]
+
+![alt text][test_d4]        ![alt text][test_u4]
 
 ![alt text][test_d5]        ![alt text][test_u5]
 
 ![alt text][test_d6]        ![alt text][test_u6]
 
-![alt text][test_d7]        ![alt text][test_u7]
-
-![alt text][test_d8]        ![alt text][test_u8]
-
-
-![alt text][image2]
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in `another_file.py`).  Here's an example of my output for this step.  (note: this is not actually from one of the test images)
