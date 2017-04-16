@@ -101,9 +101,9 @@ print("Applying undistrotion to test images from ./test_images/...")
 for image_name in glob.glob('./test_images/test*.jpg'):
     image = cv2.imread(image_name)    
     undistorted = cal_undistort(image, mtx, dist)
-    
-    small = cv2.resize(image,(128, 72))
-    small_u = cv2.resize(undistorted,(128, 72))
+
+    small = cv2.resize(image,(256, 144))
+    small_u = cv2.resize(undistorted,(256, 144))
 
     output_name = "./output_images/camera_calibration/original_" + image_name.split('/')[-1]
     cv2.imwrite(output_name, small)
@@ -120,8 +120,8 @@ print("Applying undistrotion to chessboard images from ./test_images/...")
 for image_name in cal_images:
     image = cv2.imread(image_name)    
     undistorted = cal_undistort(image, mtx, dist)
-    small = cv2.resize(image,(128, 72))
-    small_u = cv2.resize(undistorted,(128, 72))
+    small = cv2.resize(image,(256, 144))
+    small_u = cv2.resize(undistorted,(256, 144))
 
     output_name = "./output_images/camera_calibration/original_" + image_name.split('/')[-1]
     cv2.imwrite(output_name, small)
@@ -130,11 +130,4 @@ for image_name in cal_images:
     cv2.imshow('img',undistorted)
     cv2.waitKey(500)
 
-#store calibration coeff:
-coeff_out_path = "./machine_generated_files/calibration_parameters.p"
-print("saving calibration coefficients here:\n\t" + coeff_out_path)
-with open(coeff_out_path, 'wb') as p_out:
-    # Pickle the 'data' dictionary using the highest protocol available.
-    pickle.dump(calibration_parameters, p_out)
-
-print("Done")
+ 

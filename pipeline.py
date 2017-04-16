@@ -14,9 +14,85 @@ print("Loading calibration coefficients from here:\n\t" + coeff_in_path)
 with open(coeff_in_path, 'rb') as p_in:
     # Pickle the 'data' dictionary using the highest protocol available.
     calibration_parameters = pickle.load(p_in)
-    mtx = calibration_parameters["mtx"]
-    dist = calibration_parameters["dist"]
+    p_mtx = calibration_parameters["mtx"]
+    p_dist = calibration_parameters["dist"]
 
 
-#print(mtx)
-#print(dist)
+def cal_undistort(img, mtx=p_mtx, dist=p_dist):
+    """ 
+    cal_undistort takes an image, object points, and image points
+    performs the camera calibration, image distortion correction and 
+    returns the undistorted image
+    """
+    undist = cv2.undistort(img, mtx, dist, None, mtx)  
+    return undist
+
+def warp(img, M):
+    # e) use cv2.warpPerspective() to warp your image to a top-down view
+    warped = cv2.warpPerspective(img, M, (img.shape[1], img.shape[0]), flags=cv2.INTER_LINEAR) 
+    return warped
+
+
+def pipeline(img):
+    result = img
+
+    return img
+
+#warp all test images
+#Define M for the images and Region Of Interest
+
+print("Calculating distorsion matrix")
+first_image = cv2.imread('./test_images/test1.jpg')  
+image_shape = (first_image.shape[1], first_image.shape[0])
+
+Y_TOP = image_shape[1] * 0.64 
+Y_BOTTOM = image_shape[1]
+TOP_W_HALF = 62
+TOP_SHIFT = 4
+
+print(image_shape, Y_BOTTOM, Y_TOP, TOP_W_HALF)
+
+roi_src = np.int32(
+    [[(image_shape[0] * 0.5) - TOP_W_HALF + TOP_SHIFT, Y_TOP],
+    [ (image_shape[0] * 0.16), Y_BOTTOM],
+    [ (image_shape[0] * 0.87), Y_BOTTOM],
+    [ (image_shape[0] * 0.5) + TOP_W_HALF + TOP_SHIFT, Y_TOP]])
+roi_dst = np.int32(
+    [[(image_shape[0] * 0.25), 0],
+    [ (image_shape[0] * 0.25), image_shape[1]],
+    [ (image_shape[0] * 0.75), image_shape[1]],
+    [ (image_shape[0] * 0.75), 0]])
+
+
+# d) use cv2.getPerspectiveTransform() to get M, the transform matrix
+M = cv2.getPerspectiveTransform(np.float32(roi_src), np.float32(roi_dst))
+
+print("Applying undistrotion to test images from ./test_images/...")
+for image_name in glob.glob('./test_images/*.jpg'):
+    image = cv2.imread(image_name)    
+    undistorted = cal_undistort(image)
+    warped = warp(undistorted, M)
+    cv2.polylines(warped,[roi_dst],True,(0,0,255), 10)
+
+    cv2.polylines(undistorted,[roi_src],True,(0,0,255), 10)
+
+    
+    small = cv2.resize(undistorted,(256, 144))
+    small_w = cv2.resize(warped,(256, 144))
+
+    output_name = "./output_images/warped/original_" + image_name.split('/')[-1]
+    cv2.imwrite(output_name, small)
+    output_name = "./output_images/warped/undistorted_" + image_name.split('/')[-1]
+    cv2.imwrite(output_name, small_w)
+
+    output_name = "./output_images/warped/" + image_name.split('/')[-1]
+    cv2.imwrite(output_name, undistorted)
+    # cv2.imshow('img',warped)
+    # cv2.waitKey(500)
+    
+
+
+
+
+# #print(mtx)
+# #print(dist)
