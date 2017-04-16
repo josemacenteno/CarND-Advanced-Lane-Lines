@@ -1,24 +1,15 @@
 #!/home/jcenteno/miniconda3/envs/carnd-term1/bin/python
 
-import pickle
 import numpy as np
 import cv2
-import glob
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from moviepy.editor import VideoFileClip
 
-#load calibration coeff:
-coeff_in_path = "./machine_generated_files/calibration_parameters.p"
-print("Loading calibration coefficients from here:\n\t" + coeff_in_path)
-with open(coeff_in_path, 'rb') as p_in:
-    # Pickle the 'data' dictionary using the highest protocol available.
-    calibration_parameters = pickle.load(p_in)
-    p_mtx = calibration_parameters["mtx"]
-    p_dist = calibration_parameters["dist"]
 
 
-def cal_undistort(img, mtx=p_mtx, dist=p_dist):
+
+def cal_undistort(img, mtx, dist):
     """ 
     cal_undistort takes an image, object points, and image points
     performs the camera calibration, image distortion correction and 
@@ -33,66 +24,53 @@ def warp(img, M):
     return warped
 
 
-def pipeline(img):
-    result = img
+def chessboard_draw(img, nx, ny):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
+    # Find the chessboard corners
+    ret, corners = cv2.findChessboardCorners(gray, (nx, ny), None)
+
+    # If found, draw corners
+    if ret == True:
+        # Draw and display the corners
+        cv2.drawChessboardCorners(img, (nx, ny), corners, ret)
     return img
 
-#warp all test images
-#Define M for the images and Region Of Interest
 
-print("Calculating distorsion matrix")
-first_image = cv2.imread('./test_images/test1.jpg')  
-image_shape = (first_image.shape[1], first_image.shape[0])
+def calibrate_cam(objpoints, imgpoints, img_shape):
+    """ 
+    cal_undistort takes an image, object points, and image points
+    performs the camera calibration, image distortion correction and 
+    returns the undistorted image
+    """
 
-Y_TOP = image_shape[1] * 0.64 
-Y_BOTTOM = image_shape[1]
-TOP_W_HALF = 62
-TOP_SHIFT = 4
-
-print(image_shape, Y_BOTTOM, Y_TOP, TOP_W_HALF)
-
-roi_src = np.int32(
-    [[(image_shape[0] * 0.5) - TOP_W_HALF + TOP_SHIFT, Y_TOP],
-    [ (image_shape[0] * 0.16), Y_BOTTOM],
-    [ (image_shape[0] * 0.87), Y_BOTTOM],
-    [ (image_shape[0] * 0.5) + TOP_W_HALF + TOP_SHIFT, Y_TOP]])
-roi_dst = np.int32(
-    [[(image_shape[0] * 0.25), 0],
-    [ (image_shape[0] * 0.25), image_shape[1]],
-    [ (image_shape[0] * 0.75), image_shape[1]],
-    [ (image_shape[0] * 0.75), 0]])
-
-
-# d) use cv2.getPerspectiveTransform() to get M, the transform matrix
-M = cv2.getPerspectiveTransform(np.float32(roi_src), np.float32(roi_dst))
-
-print("Applying undistrotion to test images from ./test_images/...")
-for image_name in glob.glob('./test_images/*.jpg'):
-    image = cv2.imread(image_name)    
-    undistorted = cal_undistort(image)
-    warped = warp(undistorted, M)
-    cv2.polylines(warped,[roi_dst],True,(0,0,255), 10)
-
-    cv2.polylines(undistorted,[roi_src],True,(0,0,255), 10)
-
-    
-    small = cv2.resize(undistorted,(256, 144))
-    small_w = cv2.resize(warped,(256, 144))
-
-    output_name = "./output_images/warped/original_" + image_name.split('/')[-1]
-    cv2.imwrite(output_name, small)
-    output_name = "./output_images/warped/undistorted_" + image_name.split('/')[-1]
-    cv2.imwrite(output_name, small_w)
-
-    output_name = "./output_images/warped/" + image_name.split('/')[-1]
-    cv2.imwrite(output_name, undistorted)
-    # cv2.imshow('img',warped)
-    # cv2.waitKey(500)
-    
+    ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, img_shape, None, None)
+    return mtx, dist
 
 
 
+def find_image_points(cal_image_file_names, object_points,  display_images = True):
+    img_p_list = []
+    obj_p_list = []
+    for cal_image_filename in cal_image_file_names:
+        cal_image = cv2.imread(cal_image_filename)
+        gray = cv2.cvtColor(cal_image,cv2.COLOR_BGR2GRAY)
+        # Find the chessboard corners
+        ret, corners = cv2.findChessboardCorners(gray, (9,6),None)
 
-# #print(mtx)
-# #print(dist)
+        if not ret:
+            print("Couldn't find all points in", cal_image_filename)
+        else:
+            img_p_list.append(corners)
+            obj_p_list.append(object_points)
+
+            # Draw and display the corners
+            if display_images:
+                cal_image = cv2.drawChessboardCorners(cal_image, (9,6), corners, ret)
+                cv2.imshow('img',cal_image)
+                cv2.waitKey(500)
+        
+    # If found, add object points, image points
+    return np.array(obj_p_list), np.array(img_p_list)
+
+
