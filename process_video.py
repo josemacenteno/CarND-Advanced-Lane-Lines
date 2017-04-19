@@ -1,0 +1,20 @@
+#!/home/jcenteno/anaconda3/envs/carnd-term1/bin/python
+from moviepy.editor import VideoFileClip
+from IPython.display import HTML
+
+from pipeline import *
+
+def process_image(image):
+    result = pipeline(image)
+    #cv2.imshow("img", result)
+    #cv2.waitKey(10)
+    return result
+
+
+#clip1 = VideoFileClip("project_video.mp4")
+clip1 = VideoFileClip("short.mp4")
+white_clip = clip1.fl_image(process_image) #NOTE: this function expects color images!!
+
+white_output = 'project_video_output.mp4'
+
+white_clip.write_videofile(white_output, audio=False)

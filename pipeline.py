@@ -172,3 +172,23 @@ def bgr_to_s(img):
     img_s = img_hls[:,:,2]
     eq_s = cv2.equalizeHist(img_s).reshape(img_s.shape)
     return eq_s
+
+
+def pipeline(img):
+    ksize = 3
+    hls_eq = bgr_to_s(img)
+    gradx = abs_sobel_thresh(hls_eq, orient='x', sobel_kernel=ksize, thresh=(40, 180), gray=True)
+    grady = abs_sobel_thresh(hls_eq, orient='y', sobel_kernel=ksize, thresh=(60, 200), gray=True)
+    mag_binary = mag_thresh(hls_eq, sobel_kernel=ksize, mag_thresh=(60, 120), gray=True)
+    dir_binary = dir_threshold(hls_eq, sobel_kernel=ksize, thresh=(0.7, 1.5), gray=True)
+
+
+    combined = np.zeros_like(dir_binary)
+    combined[((mag_binary == 1) & (dir_binary == 1)) | ((gradx == 1) & (grady == 1))] = np.uint8((255))
+    three_chan = np.dstack((np.zeros_like(combined), np.zeros_like(combined), combined))
+    α=0.8
+    β=1.
+    λ=0
+    print(img.shape, three_chan.shape)
+    superposed = cv2.addWeighted(np.uint8(img), α, np.uint8(three_chan), β, λ)
+    return superposed
