@@ -49,61 +49,80 @@ roi_dst = np.int32(
 # d) use cv2.getPerspectiveTransform() to get M, the transform matrix
 M = cv2.getPerspectiveTransform(np.float32(roi_src), np.float32(roi_dst))
 
-print("Applying undistrotion to test images from ./test_images/...")
-for image_name in glob.glob('./test_images/*.jpg'):
-    image = cv2.imread(image_name)    
-    undistorted = cal_undistort(image, p_mtx, p_dist)
-    warped = warp(undistorted, M)
-    cv2.polylines(warped,[roi_dst],True,(0,0,255), 10)
 
-    cv2.polylines(undistorted,[roi_src],True,(0,0,255), 10)
+# #Undistort all chessboard images
+# print("Applying undistrotion to chessboard images from ./test_images/...")
+# for image_name in glob.glob('./camera_cal/calibration*.jpg'):
+#     image = cv2.imread(image_name)    
+#     undistorted = cal_undistort(image, p_mtx, p_dist)
+#     small = cv2.resize(image,(256, 144))
+#     small_u = cv2.resize(undistorted,(256, 144))
+
+#     output_name = "./output_images/camera_calibration/original_" + image_name.split('/')[-1]
+#     cv2.imwrite(output_name, small)
+#     output_name = "./output_images/camera_calibration/undistorted_" + image_name.split('/')[-1]
+#     cv2.imwrite(output_name, small_u)
+#     cv2.imshow('img',undistorted)
+#     cv2.waitKey(50)
+
+# #Undistort all test images
+# print("Applying undistrotion to test images from ./test_images/...")
+# for image_name in glob.glob('./test_images/test*.jpg'):
+#     image = cv2.imread(image_name)    
+#     undistorted = cal_undistort(image, p_mtx, p_dist)
+
+#     small = cv2.resize(image,(256, 144))
+#     small_u = cv2.resize(undistorted,(256, 144))
+
+#     output_name = "./output_images/camera_calibration/original_" + image_name.split('/')[-1]
+#     cv2.imwrite(output_name, small)
+#     output_name = "./output_images/camera_calibration/undistorted_" + image_name.split('/')[-1]
+#     cv2.imwrite(output_name, small_u)
+
+#     output_name = "./output_images/camera_calibration/" + image_name.split('/')[-1]
+#     cv2.imwrite(output_name, undistorted)
+#     cv2.imshow('img',undistorted)
+#     cv2.waitKey(50)
+
+
+# print("Applying warp to test images from ./test_images/...")
+# for image_name in glob.glob('./test_images/*.jpg'):
+#     image = cv2.imread(image_name)    
+#     undistorted = cal_undistort(image, p_mtx, p_dist)
+#     warped = warp(undistorted, M)
+#     cv2.polylines(warped,[roi_dst],True,(0,0,255), 10)
+
+#     cv2.polylines(undistorted,[roi_src],True,(0,0,255), 10)
 
     
-    small = cv2.resize(undistorted,(256, 144))
-    small_w = cv2.resize(warped,(256, 144))
+#     small = cv2.resize(undistorted,(256, 144))
+#     small_w = cv2.resize(warped,(256, 144))
 
-    output_name = "./output_images/warped/original_" + image_name.split('/')[-1]
-    cv2.imwrite(output_name, small)
-    output_name = "./output_images/warped/undistorted_" + image_name.split('/')[-1]
-    cv2.imwrite(output_name, small_w)
+#     output_name = "./output_images/warped/original_" + image_name.split('/')[-1]
+#     cv2.imwrite(output_name, small)
+#     output_name = "./output_images/warped/warp_" + image_name.split('/')[-1]
+#     cv2.imwrite(output_name, small_w)
 
-    output_name = "./output_images/warped/" + image_name.split('/')[-1]
-    cv2.imwrite(output_name, undistorted)
+#     output_name = "./output_images/warped/" + image_name.split('/')[-1]
+#     cv2.imwrite(output_name, undistorted)
 
-
-    #Undistort all test images
-print("Applying undistrotion to test images from ./test_images/...")
+#Aplying pipeline to all test images
+print("Applying pipeline to test images from ./test_images/...")
 for image_name in glob.glob('./test_images/test*.jpg'):
     image = cv2.imread(image_name)    
-    undistorted = cal_undistort(image, p_mtx, p_dist)
+    pipelined = pipeline(image)
 
     small = cv2.resize(image,(256, 144))
-    small_u = cv2.resize(undistorted,(256, 144))
+    small_p = cv2.resize(pipelined,(256, 144))
 
-    output_name = "./output_images/camera_calibration/original_" + image_name.split('/')[-1]
+    output_name = "./output_images/pipelined/original_" + image_name.split('/')[-1]
     cv2.imwrite(output_name, small)
-    output_name = "./output_images/camera_calibration/undistorted_" + image_name.split('/')[-1]
-    cv2.imwrite(output_name, small_u)
+    output_name = "./output_images/pipelined/piped_" + image_name.split('/')[-1]
+    cv2.imwrite(output_name, small_p)
 
-    output_name = "./output_images/camera_calibration/" + image_name.split('/')[-1]
-    cv2.imwrite(output_name, undistorted)
-    cv2.imshow('img',undistorted)
+    output_name = "./output_images/pipelined/" + image_name.split('/')[-1]
+    cv2.imwrite(output_name, pipelined)
+
+    cv2.imshow('img',pipelined)
     cv2.waitKey(500)
 
-#Undistort all chessboard images
-cal_images = glob.glob('./camera_cal/calibration*.jpg')
-print("Applying undistrotion to chessboard images from ./test_images/...")
-for image_name in cal_images:
-    image = cv2.imread(image_name)    
-    undistorted = cal_undistort(image, p_mtx, p_dist)
-    small = cv2.resize(image,(256, 144))
-    small_u = cv2.resize(undistorted,(256, 144))
-
-    output_name = "./output_images/camera_calibration/original_" + image_name.split('/')[-1]
-    cv2.imwrite(output_name, small)
-    output_name = "./output_images/camera_calibration/undistorted_" + image_name.split('/')[-1]
-    cv2.imwrite(output_name, small_u)
-    cv2.imshow('img',undistorted)
-    cv2.waitKey(500)
-
- 

@@ -1,11 +1,47 @@
 #!/home/jcenteno/miniconda3/envs/carnd-term1/bin/python
 
+import pickle
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from moviepy.editor import VideoFileClip
 
+#Define M for the images and Region Of Interest
+#load calibration coeff:
+coeff_in_path = "./machine_generated_files/calibration_parameters.p"
+print("Loading calibration coefficients from here:\n\t" + coeff_in_path)
+with open(coeff_in_path, 'rb') as p_in:
+    # Pickle the 'data' dictionary using the highest protocol available.
+    calibration_parameters = pickle.load(p_in)
+    p_mtx = calibration_parameters["mtx"]
+    p_dist = calibration_parameters["dist"]
+
+print("Calculating distorsion matrix")
+first_image = cv2.imread('./test_images/test1.jpg')  
+image_shape = (first_image.shape[1], first_image.shape[0])
+
+Y_TOP = image_shape[1] * 0.64 
+Y_BOTTOM = image_shape[1]
+TOP_W_HALF = 62
+TOP_SHIFT = 4
+
+print(image_shape, Y_BOTTOM, Y_TOP, TOP_W_HALF)
+
+roi_src = np.int32(
+    [[(image_shape[0] * 0.5) - TOP_W_HALF + TOP_SHIFT, Y_TOP],
+    [ (image_shape[0] * 0.16), Y_BOTTOM],
+    [ (image_shape[0] * 0.88), Y_BOTTOM],
+    [ (image_shape[0] * 0.5) + TOP_W_HALF + TOP_SHIFT, Y_TOP]])
+roi_dst = np.int32(
+    [[(image_shape[0] * 0.25), 0],
+    [ (image_shape[0] * 0.25), image_shape[1]],
+    [ (image_shape[0] * 0.75), image_shape[1]],
+    [ (image_shape[0] * 0.75), 0]])
+
+
+# d) use cv2.getPerspectiveTransform() to get M, the transform matrix
+M = cv2.getPerspectiveTransform(np.float32(roi_src), np.float32(roi_dst))
 
 
 
@@ -121,7 +157,7 @@ def mag_thresh(img, sobel_kernel=3, mag_thresh=(40, 120), gray=False):
     # 5) Create a binary mask where mag thresholds are met
     mag_binary = np.zeros_like(scaled_sobel)
     mag_binary[(scaled_sobel >= mag_thresh[0]) & (scaled_sobel <= mag_thresh[1])] = 1
-    return mag_binary
+    return scaled_sobel
 
 def dir_threshold(img, sobel_kernel=3, thresh=(0.8, 1.25), gray=False):
     # Calculate gradient direction
@@ -176,19 +212,29 @@ def bgr_to_s(img):
 
 def pipeline(img):
     ksize = 3
-    hls_eq = bgr_to_s(img)
+
+    undistorted = cal_undistort(img, p_mtx, p_dist)
+
+    hls_eq = bgr_to_s(undistorted)
     gradx = abs_sobel_thresh(hls_eq, orient='x', sobel_kernel=ksize, thresh=(40, 180), gray=True)
     grady = abs_sobel_thresh(hls_eq, orient='y', sobel_kernel=ksize, thresh=(60, 200), gray=True)
     mag_binary = mag_thresh(hls_eq, sobel_kernel=ksize, mag_thresh=(60, 120), gray=True)
     dir_binary = dir_threshold(hls_eq, sobel_kernel=ksize, thresh=(0.7, 1.5), gray=True)
-
-
     combined = np.zeros_like(dir_binary)
-    combined[((mag_binary == 1) & (dir_binary == 1)) | ((gradx == 1) & (grady == 1))] = np.uint8((255))
+    #combined[((mag_binary == 1) & (dir_binary == 1)) | ((gradx == 1) & (grady == 1))] = np.uint8((255))
+
+    combined = mag_binary
     three_chan = np.dstack((np.zeros_like(combined), np.zeros_like(combined), combined))
+    
+    warped = warp(three_chan, M)
+    return three_chan
+
+
+def merge(img, overlay):
     α=0.8
     β=1.
     λ=0
-    print(img.shape, three_chan.shape)
-    superposed = cv2.addWeighted(np.uint8(img), α, np.uint8(three_chan), β, λ)
+    superposed = cv2.addWeighted(np.uint8(img), α, np.uint8(overlay), β, λ)
     return superposed
+
+
