@@ -39,11 +39,8 @@ roi_dst = np.int32(
     [ (image_shape[0] * 0.75), image_shape[1]],
     [ (image_shape[0] * 0.75), 0]])
 
-
 # d) use cv2.getPerspectiveTransform() to get M, the transform matrix
 M = cv2.getPerspectiveTransform(np.float32(roi_src), np.float32(roi_dst))
-
-
 
 def cal_undistort(img, mtx, dist):
     """ 
@@ -74,44 +71,6 @@ def chessboard_draw(img, nx, ny, gray=False):
         # Draw and display the corners
         cv2.drawChessboardCorners(img, (nx, ny), corners, ret)
     return img
-
-
-def calibrate_cam(objpoints, imgpoints, img_shape):
-    """ 
-    cal_undistort takes an image, object points, and image points
-    performs the camera calibration, image distortion correction and 
-    returns the undistorted image
-    """
-
-    ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, img_shape, None, None)
-    return mtx, dist
-
-
-
-def find_image_points(cal_image_file_names, object_points,  display_images = True):
-    img_p_list = []
-    obj_p_list = []
-    for cal_image_filename in cal_image_file_names:
-        cal_image = cv2.imread(cal_image_filename)
-        gray = cv2.cvtColor(cal_image,cv2.COLOR_BGR2GRAY)
-        # Find the chessboard corners
-        ret, corners = cv2.findChessboardCorners(gray, (9,6),None)
-
-        if not ret:
-            print("Couldn't find all points in", cal_image_filename)
-        else:
-            img_p_list.append(corners)
-            obj_p_list.append(object_points)
-
-            # Draw and display the corners
-            if display_images:
-                cal_image = cv2.drawChessboardCorners(cal_image, (9,6), corners, ret)
-                cv2.imshow('img',cal_image)
-                cv2.waitKey(500)
-        
-    # If found, add object points, image points
-    return np.array(obj_p_list), np.array(img_p_list)
-
 
 def abs_sobel_thresh(img, orient='x', sobel_kernel=3, thresh=(10, 200), gray = False):
     # Calculate directional gradient
@@ -182,7 +141,6 @@ def dir_threshold(img, sobel_kernel=3, thresh=(0.8, 1.25), gray=False):
     # 6) Return this mask as your dir_binary image
     return dir_binary
 
-
 # Define a function that thresholds the S-channel of HLS
 # Use exclusive lower bound (>) and inclusive upper (<=)
 def hls_filter(img, thresh=(60, 255)):
@@ -209,7 +167,6 @@ def bgr_to_s(img):
     eq_s = cv2.equalizeHist(img_s).reshape(img_s.shape)
     return eq_s
 
-
 def pipeline(img):
     ksize = 3
 
@@ -229,12 +186,9 @@ def pipeline(img):
     warped = warp(three_chan, M)
     return three_chan
 
-
 def merge(img, overlay):
     α=0.8
     β=1.
     λ=0
     superposed = cv2.addWeighted(np.uint8(img), α, np.uint8(overlay), β, λ)
     return superposed
-
-
