@@ -139,7 +139,7 @@ I reused many values from class quizes for the thresold selections. I tweaked a 
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-The code for my perspective transform includes a function called `warper()`, which appears in lines 1 through 8 in the file `example.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warper()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
+The code for my perspective transform includes a function called `warp()`, which appears in the file `pipeline.py` The `warp()` function takes as inputs an image (`img`), as well as the matrix calculated with cv2.getPerspectiveTransform and the `src` and destination `dst` points defined as follows:
 
 ```
 Y_TOP = image_shape[1] * 0.64 
