@@ -44,6 +44,19 @@ The goals / steps of this project are the following:
 [test_d6]: ./output_images/camera_calibration/original_test6.jpg "Disistorted test6"
 [test_u6]: ./output_images/camera_calibration/undistorted_test6.jpg "Undistorted test6"
 
+[bin_o1]: ./output_images/bin_thres/original_test1.jpg "Original test1"
+[bin_t1]: ./output_images/bin_thres/bin_test1.jpg "Binary test1"
+[bin_o2]: ./output_images/bin_thres/original_test2.jpg "Original test2"
+[bin_t2]: ./output_images/bin_thres/bin_test2.jpg "Binary test2"
+[bin_o3]: ./output_images/bin_thres/original_test3.jpg "Original test3"
+[bin_t3]: ./output_images/bin_thres/bin_test3.jpg "Binary test3"
+[bin_o4]: ./output_images/bin_thres/original_test4.jpg "Original test4"
+[bin_t4]: ./output_images/bin_thres/bin_test4.jpg "Binary test4"
+[bin_o5]: ./output_images/bin_thres/original_test5.jpg "Original test5"
+[bin_t5]: ./output_images/bin_thres/bin_test5.jpg "Binary test5"
+[bin_o6]: ./output_images/bin_thres/original_test6.jpg "Original test6"
+[bin_t6]: ./output_images/bin_thres/bin_test6.jpg "Binary test6"
+
 [image3]: ./examples/binary_combo_example.jpg "Binary Example"
 [image4]: ./examples/warped_straight_lines.jpg "Warp Example"
 [image5]: ./examples/color_fit_lines.jpg "Fit Visual"
@@ -103,9 +116,21 @@ To demonstrate this step, I will show all the test images before and after apply
 
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
-I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in `another_file.py`).  Here's an example of my output for this step.  (note: this is not actually from one of the test images)
+I used a combination of histogram equalization, color space prjection and gradient thresholds to generate a binary image (thresholding steps at the pipeline method in in `pipeline.py`).  Here's the result of passing all the test images through the filters:
 
-![alt text][image3]
+![alt text][bin_o1]        ![alt text][bin_t1]
+
+![alt text][bin_o2]        ![alt text][bin_t2]
+
+![alt text][bin_o3]        ![alt text][bin_t3]
+
+![alt text][bin_o4]        ![alt text][bin_t4]
+
+![alt text][bin_o5]        ![alt text][bin_t5]
+
+![alt text][bin_o6]        ![alt text][bin_t6]
+
+I reused many values from class quizes for the thresold selections. I tweaked a little bit some numbers to better identify yellow images. I still have some problems with shadows over the lane lines, but I can simply discard difficult frames later and keep previous lane curvature measurements.
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
