@@ -57,6 +57,11 @@ The goals / steps of this project are the following:
 [bin_o6]: ./output_images/bin_thres/original_test6.jpg "Original test6"
 [bin_t6]: ./output_images/bin_thres/bin_test6.jpg "Binary test6"
 
+
+[sl_2]:  ./output_images/warped/original_straight_lines2.jpg "Straight lines 2"
+[wsl_2]: ./output_images/warped/warp_straight_lines2.jpg "Warped Straight lines 2"
+
+
 [image3]: ./examples/binary_combo_example.jpg "Binary Example"
 [image4]: ./examples/warped_straight_lines.jpg "Warp Example"
 [image5]: ./examples/color_fit_lines.jpg "Fit Visual"
@@ -137,30 +142,35 @@ I reused many values from class quizes for the thresold selections. I tweaked a 
 The code for my perspective transform includes a function called `warper()`, which appears in lines 1 through 8 in the file `example.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warper()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
 
 ```
-src = np.float32(
-    [[(img_size[0] / 2) - 55, img_size[1] / 2 + 100],
-    [((img_size[0] / 6) - 10), img_size[1]],
-    [(img_size[0] * 5 / 6) + 60, img_size[1]],
-    [(img_size[0] / 2 + 55), img_size[1] / 2 + 100]])
-dst = np.float32(
-    [[(img_size[0] / 4), 0],
-    [(img_size[0] / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), img_size[1]],
-    [(img_size[0] * 3 / 4), 0]])
+Y_TOP = image_shape[1] * 0.64 
+Y_BOTTOM = image_shape[1]
+TOP_W_HALF = 62
+TOP_SHIFT = 4
+
+roi_src = np.int32(
+    [[(image_shape[0] * 0.5) - TOP_W_HALF + TOP_SHIFT, Y_TOP],
+    [ (image_shape[0] * 0.16), Y_BOTTOM],
+    [ (image_shape[0] * 0.88), Y_BOTTOM],
+    [ (image_shape[0] * 0.5) + TOP_W_HALF + TOP_SHIFT, Y_TOP]])
+roi_dst = np.int32(
+    [[(image_shape[0] * 0.25), 0],
+    [ (image_shape[0] * 0.25), image_shape[1]],
+    [ (image_shape[0] * 0.75), image_shape[1]],
+    [ (image_shape[0] * 0.75), 0]])
 
 ```
 This resulted in the following source and destination points:
 
 | Source        | Destination   | 
 |:-------------:|:-------------:| 
-| 585, 460      | 320, 0        | 
-| 203, 720      | 320, 720      |
-| 1127, 720     | 960, 720      |
-| 695, 460      | 960, 0        |
+| 582, 460      | 320, 0        | 
+| 204, 720      | 320, 720      |
+| 1126, 720     | 960, 720      |
+| 706, 460      | 960, 0        |
 
 I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
 
-![alt text][image4]
+![alt text][sl_2]        ![alt text][wsl_2]
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
