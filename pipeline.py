@@ -116,7 +116,7 @@ def mag_thresh(img, sobel_kernel=3, mag_thresh=(40, 120), gray=False):
     # 5) Create a binary mask where mag thresholds are met
     mag_binary = np.zeros_like(scaled_sobel)
     mag_binary[(scaled_sobel >= mag_thresh[0]) & (scaled_sobel <= mag_thresh[1])] = 1
-    return scaled_sobel
+    return mag_binary
 
 def dir_threshold(img, sobel_kernel=3, thresh=(0.8, 1.25), gray=False):
     # Calculate gradient direction
@@ -167,24 +167,19 @@ def bgr_to_s(img):
     eq_s = cv2.equalizeHist(img_s).reshape(img_s.shape)
     return eq_s
 
-def pipeline(img):
-    ksize = 3
+def min_max_scale(instance):
+    x_min = 0
+    x_max = 255
+    a, b = 0.0, 1.0
+    conversion_factor = (b - a)/(x_max - x_min)    
+    return np.add(a,np.multiply(np.subtract(instance,x_min), conversion_factor))
 
-    undistorted = cal_undistort(img, p_mtx, p_dist)
-
-    hls_eq = bgr_to_s(undistorted)
-    gradx = abs_sobel_thresh(hls_eq, orient='x', sobel_kernel=ksize, thresh=(40, 180), gray=True)
-    grady = abs_sobel_thresh(hls_eq, orient='y', sobel_kernel=ksize, thresh=(60, 200), gray=True)
-    mag_binary = mag_thresh(hls_eq, sobel_kernel=ksize, mag_thresh=(60, 120), gray=True)
-    dir_binary = dir_threshold(hls_eq, sobel_kernel=ksize, thresh=(0.7, 1.5), gray=True)
-    combined = np.zeros_like(dir_binary)
-    #combined[((mag_binary == 1) & (dir_binary == 1)) | ((gradx == 1) & (grady == 1))] = np.uint8((255))
-
-    combined = mag_binary
-    three_chan = np.dstack((np.zeros_like(combined), np.zeros_like(combined), combined))
-    
-    warped = warp(three_chan, M)
-    return three_chan
+def pre_process(x_in, y_in):
+    if use_gray_images:
+        gray_instance = cv2.cvtColor(instance, cv2.COLOR_RGB2GRAY).reshape(gray_image_shape)
+        instance = gray_instance
+    eq_instance = cv2.equalizeHist(instance).reshape(instance.shape)
+    return min_max_scale(eq_instance)
 
 def merge(img, overlay):
     α=0.8
@@ -192,3 +187,29 @@ def merge(img, overlay):
     λ=0
     superposed = cv2.addWeighted(np.uint8(img), α, np.uint8(overlay), β, λ)
     return superposed
+
+def pipeline(img, return_bin_threshold = False):
+    ksize = 3
+    
+    undistorted = cal_undistort(img, p_mtx, p_dist)
+
+    hls_eq = bgr_to_s(undistorted)
+
+    gradx = abs_sobel_thresh(hls_eq, orient='x', sobel_kernel=ksize, thresh=(40, 100), gray=True)
+    grady = abs_sobel_thresh(hls_eq, orient='y', sobel_kernel=ksize, thresh=(60, 180), gray=True)
+    mag_binary = mag_thresh(hls_eq, sobel_kernel=ksize, mag_thresh=(50, 150), gray=True)
+    dir_binary = dir_threshold(hls_eq, sobel_kernel=ksize, thresh=(0.71, 1.42), gray=True)
+    combined = np.zeros_like(dir_binary)
+    combined[((mag_binary == 1) & (dir_binary == 1)) | ((gradx == 1) & (grady == 1))] = np.uint8((255))
+    if return_bin_threshold:
+        return  np.dstack((combined, combined, combined))
+    
+    #combined = gradx
+    #three_chan = np.dstack((np.zeros_like(combined), np.zeros_like(combined), combined))
+    three_chan = np.dstack((combined, combined, combined))
+    
+    warped = warp(combined, M)
+
+        
+    return warped
+
