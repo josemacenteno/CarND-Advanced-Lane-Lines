@@ -7,15 +7,9 @@ from moviepy.editor import VideoFileClip
 
 from pipeline import *
 
-
-
 def process_image(image):
     result = pipeline(image)
-
-    cv2.imshow("img", result)
-    cv2.waitKey(10)
     return result
-
 
 #clip1 = VideoFileClip("project_video.mp4")
 clip1 = VideoFileClip("short.mp4")

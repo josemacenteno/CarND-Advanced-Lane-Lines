@@ -103,7 +103,7 @@ print("Applying pipeline to test images from ./test_images/...")
 for image_name in glob.glob('./test_images/test*.jpg'):
     image = cv2.imread(image_name)    
     print(image_name)
-    pipelined = pipeline(image, return_bin_threshold=False)
+    pipelined = pipeline(image)
     small = cv2.resize(image,(256, 144))
     small_p = cv2.resize(pipelined,(256, 144))
 
