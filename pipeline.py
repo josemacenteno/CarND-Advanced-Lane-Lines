@@ -26,7 +26,6 @@ Y_BOTTOM = image_shape[1]
 TOP_W_HALF = 62
 TOP_SHIFT = 4
 
-print(image_shape, Y_BOTTOM, Y_TOP, TOP_W_HALF)
 
 roi_src = np.int32(
     [[(image_shape[0] * 0.5) - TOP_W_HALF + TOP_SHIFT, Y_TOP],
@@ -39,8 +38,11 @@ roi_dst = np.int32(
     [ (image_shape[0] * 0.75), image_shape[1]],
     [ (image_shape[0] * 0.75), 0]])
 
+print(image_shape, Y_BOTTOM, Y_TOP, TOP_W_HALF)
+print("roi_src:", roi_src, "roi_dst:", roi_dst)
 # d) use cv2.getPerspectiveTransform() to get M, the transform matrix
 M = cv2.getPerspectiveTransform(np.float32(roi_src), np.float32(roi_dst))
+M_inv = cv2.getPerspectiveTransform(np.float32(roi_dst), np.float32(roi_src))
 
 def cal_undistort(img, mtx, dist):
     """ 
@@ -141,31 +143,38 @@ def dir_threshold(img, sobel_kernel=3, thresh=(0.8, 1.25), gray=False):
     # 6) Return this mask as your dir_binary image
     return dir_binary
 
-# Define a function that thresholds the S-channel of HLS
-# Use exclusive lower bound (>) and inclusive upper (<=)
-def hls_filter(img, thresh=(60, 255)):
-    # 1) Convert to HLS color space
-    img_hls = cv2.cvtColor(img, cv2.COLOR_BGR2HLS)
-    # 2) Apply a threshold to the S channel
-    img_s = img_hls[:,:,2]
-    
-    # 3) Return a binary image of threshold result
-    hls_binary = np.zeros_like(img_s)
-    lt = img_s > thresh[0]
-    ht = img_s <= thresh[1]
-    in_t = lt & ht
-    hls_binary[in_t] = 1
-    return hls_binary
 
 # Define a function that thresholds the S-channel of HLS
 # Use exclusive lower bound (>) and inclusive upper (<=)
-def bgr_to_s(img):
+def hls_select(img, thresh=(0, 255), index=2):
     # 1) Convert to HLS color space
     img_hls = cv2.cvtColor(img, cv2.COLOR_BGR2HLS)
     # 2) Apply a threshold to the S channel
-    img_s = img_hls[:,:,2]
+    img_s = img_hls[:,:,index]
+    
+    # 3) Return a binary image of threshold result
+    img_bin = np.zeros_like(img_s)
+    lt = img_s > thresh[0]
+    ht = img_s <= thresh[1]
+    in_t = lt & ht
+    img_bin[in_t] = 1
+    return img_bin
+
+def bgr_to_h_l_s(img, index=2):
+    # 1) Convert to HLS color space
+    img_hls = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    # 2) Apply a threshold to the S channel
+    img_s = img_hls[:,:,index]
     eq_s = cv2.equalizeHist(img_s).reshape(img_s.shape)
     return eq_s
+
+# Define a function that thresholds the S-channel of HLS
+# Use exclusive lower bound (>) and inclusive upper (<=)
+def bgr_to_r_g_b(img, index=2):
+    # 2) Apply a threshold to the S channel
+    img_1ch = img[:,:,index]
+    eq_img = cv2.equalizeHist(img_1ch).reshape(img_1ch.shape)
+    return eq_img
 
 def min_max_scale(instance):
     x_min = 0
@@ -188,28 +197,142 @@ def merge(img, overlay):
     superposed = cv2.addWeighted(np.uint8(img), α, np.uint8(overlay), β, λ)
     return superposed
 
-def pipeline(img, return_bin_threshold = False):
+def draw_lane(binary_warped):
+    left_fit, right_fit = find_lane(binary_warped)
+
+    # Generate x and y values for plotting
+    ploty = np.linspace(0, binary_warped.shape[0]-1, binary_warped.shape[0] )
+    left_fitx = left_fit[0]*ploty**2 + left_fit[1]*ploty + left_fit[2]
+    right_fitx = right_fit[0]*ploty**2 + right_fit[1]*ploty + right_fit[2]
+
+    # Create an image to draw the lines on
+    warp_zero = np.zeros_like(binary_warped).astype(np.uint8)
+    color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
+
+    # Recast the x and y points into usable format for cv2.fillPoly()
+    pts_left = np.array([np.transpose(np.vstack([left_fitx, ploty]))])
+    pts_right = np.array([np.flipud(np.transpose(np.vstack([right_fitx, ploty])))])
+    pts = np.hstack((pts_left, pts_right))
+
+    # Draw the lane onto the warped blank image
+    cv2.fillPoly(color_warp, np.int_([pts]), (0,255, 0))
+
+    # Warp the blank back to original image space using inverse perspective matrix (Minv)
+    newwarp = warp(color_warp, M_inv) 
+
+    return newwarp
+
+
+def find_lane(binary_warped):
+    # Assuming you have created a warped binary image called "binary_warped"
+    # Take a histogram of the bottom half of the image
+    histogram = np.sum(binary_warped[binary_warped.shape[0]//2:,:], axis=0)
+    # Create an output image to draw on and  visualize the result
+    out_img = np.dstack((binary_warped, binary_warped, binary_warped))*255
+    # Find the peak of the left and right halves of the histogram
+    # These will be the starting point for the left and right lines
+    midpoint = np.int(histogram.shape[0]/2)
+    leftx_base = np.argmax(histogram[:midpoint])
+    rightx_base = np.argmax(histogram[midpoint:]) + midpoint
+
+    # Choose the number of sliding windows
+    nwindows = 9
+    # Set height of windows
+    window_height = np.int(binary_warped.shape[0]/nwindows)
+    # Identify the x and y positions of all nonzero pixels in the image
+    nonzero = binary_warped.nonzero()
+    nonzeroy = np.array(nonzero[0])
+    nonzerox = np.array(nonzero[1])
+    # Current positions to be updated for each window
+    leftx_current = leftx_base
+    rightx_current = rightx_base
+    # Set the width of the windows +/- margin
+    margin = 100
+    # Set minimum number of pixels found to recenter window
+    minpix = 50
+    # Create empty lists to receive left and right lane pixel indices
+    left_lane_inds = []
+    right_lane_inds = []
+
+    # Step through the windows one by one
+    for window in range(nwindows):
+        # Identify window boundaries in x and y (and right and left)
+        win_y_low = binary_warped.shape[0] - (window+1)*window_height
+        win_y_high = binary_warped.shape[0] - window*window_height
+        win_xleft_low = leftx_current - margin
+        win_xleft_high = leftx_current + margin
+        win_xright_low = rightx_current - margin
+        win_xright_high = rightx_current + margin
+        # Draw the windows on the visualization image
+        cv2.rectangle(out_img,(win_xleft_low,win_y_low),(win_xleft_high,win_y_high),(0,255,0), 2) 
+        cv2.rectangle(out_img,(win_xright_low,win_y_low),(win_xright_high,win_y_high),(0,255,0), 2) 
+        # Identify the nonzero pixels in x and y within the window
+        good_left_inds = ((nonzeroy >= win_y_low) & (nonzeroy < win_y_high) & (nonzerox >= win_xleft_low) & (nonzerox < win_xleft_high)).nonzero()[0]
+        good_right_inds = ((nonzeroy >= win_y_low) & (nonzeroy < win_y_high) & (nonzerox >= win_xright_low) & (nonzerox < win_xright_high)).nonzero()[0]
+        # Append these indices to the lists
+        left_lane_inds.append(good_left_inds)
+        right_lane_inds.append(good_right_inds)
+        # If you found > minpix pixels, recenter next window on their mean position
+        if len(good_left_inds) > minpix:
+            leftx_current = np.int(np.mean(nonzerox[good_left_inds]))
+        if len(good_right_inds) > minpix:        
+            rightx_current = np.int(np.mean(nonzerox[good_right_inds]))
+
+    # Concatenate the arrays of indices
+    left_lane_inds = np.concatenate(left_lane_inds)
+    right_lane_inds = np.concatenate(right_lane_inds)
+
+    # Extract left and right line pixel positions
+    leftx = nonzerox[left_lane_inds]
+    lefty = nonzeroy[left_lane_inds] 
+    rightx = nonzerox[right_lane_inds]
+    righty = nonzeroy[right_lane_inds] 
+
+    # Fit a second order polynomial to each
+    left_fit = np.polyfit(lefty, leftx, 2)
+    right_fit = np.polyfit(righty, rightx, 2)
+    return left_fit, right_fit
+
+def pipeline(img,
+             return_bin_threshold = False,
+             hthresh = (16, 23),
+             lthresh = (209, 250),
+             sthresh = (140, 250),
+             xthresh = (20, 60),
+             ythresh = (30, 120),
+             mthresh = (50, 150),
+             tthresh = (0.60, 1.4)
+             ):
     ksize = 3
     
     undistorted = cal_undistort(img, p_mtx, p_dist)
+    warped = warp(undistorted, M)
 
-    hls_eq = bgr_to_s(undistorted)
-
-    gradx = abs_sobel_thresh(hls_eq, orient='x', sobel_kernel=ksize, thresh=(40, 100), gray=True)
-    grady = abs_sobel_thresh(hls_eq, orient='y', sobel_kernel=ksize, thresh=(60, 180), gray=True)
-    mag_binary = mag_thresh(hls_eq, sobel_kernel=ksize, mag_thresh=(50, 150), gray=True)
-    dir_binary = dir_threshold(hls_eq, sobel_kernel=ksize, thresh=(0.71, 1.42), gray=True)
+    h_bin = hls_select(warped, thresh=hthresh, index=0)
+    l_bin = hls_select(warped, thresh=lthresh, index=1)
+    s_bin = hls_select(warped, thresh=sthresh, index=2)
+    gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
+    gradx = abs_sobel_thresh(gray, orient='x', sobel_kernel=ksize, thresh=xthresh, gray=True)
+    grady = abs_sobel_thresh(gray, orient='y', sobel_kernel=ksize, thresh=ythresh, gray=True)
+    mag_binary = mag_thresh(gray, sobel_kernel=ksize, mag_thresh=mthresh, gray=True)
+    dir_binary = dir_threshold(gray, sobel_kernel=ksize, thresh=tthresh, gray=True)
     combined = np.zeros_like(dir_binary)
-    combined[((mag_binary == 1) & (dir_binary == 1)) | ((gradx == 1) & (grady == 1))] = np.uint8((255))
-    if return_bin_threshold:
-        return  np.dstack((combined, combined, combined))
-    
-    #combined = gradx
-    #three_chan = np.dstack((np.zeros_like(combined), np.zeros_like(combined), combined))
-    three_chan = np.dstack((combined, combined, combined))
-    
-    warped = warp(combined, M)
+    combined[((gradx == 1) & (grady == 1) ) |                  \
+             ((mag_binary == 1) & (dir_binary== 1) ) |         \
+             ((s_bin == 1) & ((h_bin == 1) | (l_bin== 1))) ]         \
+                                                          = np.uint8(1)
+    gray_combined = 255 * combined
+    three_chan = np.dstack((gray_combined, gray_combined, gray_combined))
 
+    if return_bin_threshold:
+        return  gray_combined
         
-    return warped
+
+    lane_drawing = draw_lane(combined)
+
+    # Combine the result with the original image
+    result = cv2.addWeighted(undistorted, 1, lane_drawing, 0.3, 0)
+    
+
+    return result
 
