@@ -121,7 +121,7 @@ To demonstrate this step, I will show all the test images before and after apply
 
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
-I used a combination of histogram equalization, color space prjection and gradient thresholds to generate a binary image (thresholding steps at the pipeline method in in `pipeline.py`).  Here's the result of passing all the test images through the filters:
+Test5 image is the most difficult frame since it contains shadows and two different pavement colors. I used a script to test each gradient and hls color map separately, iterating through 25 possible values for each threshold. I choose each threshold individually and combined them using boolean logic to try to keep as much of the line as possible, while minimizing the background white pixels. (thresholding steps at the pipeline method in in `pipeline.py`).  Here's the result of passing all the test images through the filters:
 
 ![alt text][bin_o1]        ![alt text][bin_t1]
 
@@ -135,7 +135,7 @@ I used a combination of histogram equalization, color space prjection and gradie
 
 ![alt text][bin_o6]        ![alt text][bin_t6]
 
-I reused many values from class quizes for the thresold selections. I tweaked a little bit some numbers to better identify yellow images. I still have some problems with shadows over the lane lines, but I can simply discard difficult frames later and keep previous lane curvature measurements.
+While some images may have some noise from shadow lines or hls inacuracies, I think this results will be good enough for the line detection.
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
