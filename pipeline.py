@@ -63,7 +63,7 @@ def chessboard_draw(img, nx, ny, gray=False):
     if gray:
         gray = img
     else:
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
     # Find the chessboard corners
     ret, corners = cv2.findChessboardCorners(gray, (nx, ny), None)
@@ -81,7 +81,7 @@ def abs_sobel_thresh(img, orient='x', sobel_kernel=3, thresh=(10, 200), gray = F
     if gray:
         gray = img
     else:
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     # 2) Take the derivative in x or y given orient = 'x' or 'y'
     if orient == 'x':
         deriv_tuple = (1, 0)
@@ -107,7 +107,7 @@ def mag_thresh(img, sobel_kernel=3, mag_thresh=(40, 120), gray=False):
     if gray:
         gray = img
     else:
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     # 2) Take the gradient in x and y separately
     sobx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=sobel_kernel)
     soby = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=sobel_kernel)
@@ -127,7 +127,7 @@ def dir_threshold(img, sobel_kernel=3, thresh=(0.8, 1.25), gray=False):
     if gray:
         gray = img
     else:
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     # 2) Take the gradient in x and y separately
     sobx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=sobel_kernel)
     soby = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=sobel_kernel)
@@ -148,7 +148,7 @@ def dir_threshold(img, sobel_kernel=3, thresh=(0.8, 1.25), gray=False):
 # Use exclusive lower bound (>) and inclusive upper (<=)
 def hls_select(img, thresh=(0, 255), index=2):
     # 1) Convert to HLS color space
-    img_hls = cv2.cvtColor(img, cv2.COLOR_BGR2HLS)
+    img_hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS)
     # 2) Apply a threshold to the S channel
     img_s = img_hls[:,:,index]
     
@@ -160,9 +160,9 @@ def hls_select(img, thresh=(0, 255), index=2):
     img_bin[in_t] = 1
     return img_bin
 
-def bgr_to_h_l_s(img, index=2):
+def RGB_to_h_l_s(img, index=2):
     # 1) Convert to HLS color space
-    img_hls = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img_hls = cv2.cvtColor(img, cv2.COLOR_RGB2RGB)
     # 2) Apply a threshold to the S channel
     img_s = img_hls[:,:,index]
     eq_s = cv2.equalizeHist(img_s).reshape(img_s.shape)
@@ -170,7 +170,7 @@ def bgr_to_h_l_s(img, index=2):
 
 # Define a function that thresholds the S-channel of HLS
 # Use exclusive lower bound (>) and inclusive upper (<=)
-def bgr_to_r_g_b(img, index=2):
+def RGB_to_r_g_b(img, index=2):
     # 2) Apply a threshold to the S channel
     img_1ch = img[:,:,index]
     eq_img = cv2.equalizeHist(img_1ch).reshape(img_1ch.shape)
@@ -306,12 +306,16 @@ def pipeline(img,
     ksize = 3
     
     undistorted = cal_undistort(img, p_mtx, p_dist)
-    warped = warp(undistorted, M)
+
+    if return_bin_threshold:
+        warped = undistorted
+    else:
+        warped = warp(undistorted, M)
 
     h_bin = hls_select(warped, thresh=hthresh, index=0)
     l_bin = hls_select(warped, thresh=lthresh, index=1)
     s_bin = hls_select(warped, thresh=sthresh, index=2)
-    gray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(warped, cv2.COLOR_RGB2GRAY)
     gradx = abs_sobel_thresh(gray, orient='x', sobel_kernel=ksize, thresh=xthresh, gray=True)
     grady = abs_sobel_thresh(gray, orient='y', sobel_kernel=ksize, thresh=ythresh, gray=True)
     mag_binary = mag_thresh(gray, sobel_kernel=ksize, mag_thresh=mthresh, gray=True)
