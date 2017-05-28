@@ -72,15 +72,15 @@ The goals / steps of this project are the following:
 
 
 [pipe_o_1]:  ./output_images/pipelined/original_test1.jpg "Test Image 1"
-[pipe_f_1]: ./output_images/pipelined/pipe_test1.jpg "Pipelined Image 1"
+[pipe_f_1]: ./output_images/pipelined/piped_test1.jpg "Pipelined Image 1"
 [pipe_o_2]:  ./output_images/pipelined/original_test1.jpg "Test Image 2"
-[pipe_f_2]: ./output_images/pipelined/pipe_test1.jpg "Pipelined Image 2"
+[pipe_f_2]: ./output_images/pipelined/piped_test1.jpg "Pipelined Image 2"
 [pipe_o_3]:  ./output_images/pipelined/original_test1.jpg "Test Image 3"
-[pipe_f_3]: ./output_images/pipelined/pipe_test1.jpg "Pipelined Image 3"
+[pipe_f_3]: ./output_images/pipelined/piped_test1.jpg "Pipelined Image 3"
 [pipe_o_4]:  ./output_images/pipelined/original_test1.jpg "Test Image 4"
-[pipe_f_4]: ./output_images/pipelined/pipe_test1.jpg "Pipelined Image 4"
+[pipe_f_4]: ./output_images/pipelined/piped_test1.jpg "Pipelined Image 4"
 [pipe_o_5]:  ./output_images/pipelined/original_test1.jpg "Test Image 5"
-[pipe_f_5]: ./output_images/pipelined/pipe_test1.jpg "Pipelined Image 5"
+[pipe_f_5]: ./output_images/pipelined/piped_test1.jpg "Pipelined Image 5"
 
 [image3]: ./examples/binary_combo_example.jpg "Binary Example"
 [image4]: ./examples/warped_straight_lines.jpg "Warp Example"
