@@ -280,7 +280,7 @@ def find_lane(binary_warped):
     left_lane_base = left_fit[0]*max_y**2 + left_fit[1]*max_y + left_fit[2]
     right_lane_base = right_fit[0]*max_y**2 + right_fit[1]*max_y + right_fit[2]
     center_pix = (left_lane_base + right_lane_base) / 2
-    distance_to_center = (640-center_pix * xm_per_pix)
+    distance_to_center = (640-center_pix) * xm_per_pix
 
 
     # Calculate the new radii of curvature
@@ -326,7 +326,7 @@ def pprint_dist(num):
         side = "left"
     else:
         side = "right"
-    return "Vehicle is {:,.2f} m ".format(abs(num)) + side + "from center"
+    return "Vehicle is {:,.2f} m ".format(abs(num)) + side + " from center"
 
 def pipeline(img,
              return_bin_threshold = False,

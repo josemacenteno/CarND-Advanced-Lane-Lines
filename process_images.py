@@ -102,24 +102,26 @@ for image_name in glob.glob('./test_images/test*.jpg'):
     cv2.imshow('img',bin_thres)
     cv2.waitKey(50)
 
-#Adentifying polynomial in test images
-print("Applying bin_threshold to test images from ./test_images/...")
+#Identifying polynomial in test images
+print("Identifying polynomial on test images from ./test_images/...")
 for image_name in glob.glob('./test_images/test*.jpg'):
     image = rgb_read(image_name)
-    bin_thres = pipeline(image, return_poly= True)
+    poly_rgb = pipeline(image, return_poly= True)
+
+    poly = cv2.cvtColor(poly_rgb, cv2.COLOR_RGB2BGR) 
 
     small = cv2.resize(cv2.imread(image_name),(256, 144))
-    small_p = cv2.resize(bin_thres,(256, 144))
+    small_p = cv2.resize(poly,(256, 144))
 
-    output_name = "./output_images/bin_thres/original_" + image_name.split('/')[-1]
+    output_name = "./output_images/poly/original_" + image_name.split('/')[-1]
     cv2.imwrite(output_name, small)
-    output_name = "./output_images/bin_thres/bin_" + image_name.split('/')[-1]
+    output_name = "./output_images/poly/poly_" + image_name.split('/')[-1]
     cv2.imwrite(output_name, small_p)
 
-    output_name = "./output_images/bin_thres/" + image_name.split('/')[-1]
-    cv2.imwrite(output_name, bin_thres)
+    output_name = "./output_images/poly/" + image_name.split('/')[-1]
+    cv2.imwrite(output_name, poly)
 
-    cv2.imshow('img',bin_thres)
+    cv2.imshow('img',poly)
     cv2.waitKey(50)
 
 
@@ -130,7 +132,7 @@ for image_name in glob.glob('./test_images/test*.jpg'):
     pipelined_rgb = pipeline(image)
 
     pipelined = cv2.cvtColor(pipelined_rgb, cv2.COLOR_RGB2BGR) 
-    small = cv2.resize(image,(256, 144))
+    small = cv2.resize(cv2.imread(image_name),(256, 144))
     small_p = cv2.resize(pipelined,(256, 144))
 
     output_name = "./output_images/pipelined/original_" + image_name.split('/')[-1]
