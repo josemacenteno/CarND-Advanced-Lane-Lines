@@ -60,6 +60,8 @@ The goals / steps of this project are the following:
 
 [sl_2]:  ./output_images/warped/original_straight_lines2.jpg "Straight lines 2"
 [wsl_2]: ./output_images/warped/warp_straight_lines2.jpg "Warped Straight lines 2"
+[sl_1]:  ./output_images/warped/original_straight_lines1.jpg "Straight lines 1"
+[wsl_1]: ./output_images/warped/warp_straight_lines1.jpg "Warped Straight lines 1"
 
 
 [image3]: ./examples/binary_combo_example.jpg "Binary Example"
@@ -170,6 +172,7 @@ This resulted in the following source and destination points:
 
 I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
 
+![alt text][sl_1]        ![alt text][wsl_1]
 ![alt text][sl_2]        ![alt text][wsl_2]
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
