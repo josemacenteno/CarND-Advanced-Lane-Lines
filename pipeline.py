@@ -319,7 +319,7 @@ def draw_lane(binary_warped):
     return newwarp
 
 def pprint_curv(num):
-    return "Radius of Curvature: {:,.2f}".format(num)
+    return "Radius of Curvature: {:,.2f} m".format(num)
 
 def pprint_dist(num):
     if num < 0:
