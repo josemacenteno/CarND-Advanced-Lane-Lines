@@ -24,13 +24,13 @@ image_shape = (first_image.shape[1], first_image.shape[0])
 Y_TOP = image_shape[1] * 0.64 
 Y_BOTTOM = image_shape[1]
 TOP_W_HALF = 62
-TOP_SHIFT = 4
+TOP_SHIFT = 5
 
 
 roi_src = np.int32(
     [[(image_shape[0] * 0.5) - TOP_W_HALF + TOP_SHIFT, Y_TOP],
-    [ (image_shape[0] * 0.16), Y_BOTTOM],
-    [ (image_shape[0] * 0.88), Y_BOTTOM],
+    [ (image_shape[0] * 0.18), Y_BOTTOM],
+    [ (image_shape[0] * 0.89), Y_BOTTOM],
     [ (image_shape[0] * 0.5) + TOP_W_HALF + TOP_SHIFT, Y_TOP]])
 roi_dst = np.int32(
     [[(image_shape[0] * 0.25), 0],
@@ -197,32 +197,6 @@ def merge(img, overlay):
     superposed = cv2.addWeighted(np.uint8(img), α, np.uint8(overlay), β, λ)
     return superposed
 
-def draw_lane(binary_warped):
-    left_fit, right_fit = find_lane(binary_warped)
-
-    # Generate x and y values for plotting
-    ploty = np.linspace(0, binary_warped.shape[0]-1, binary_warped.shape[0] )
-    left_fitx = left_fit[0]*ploty**2 + left_fit[1]*ploty + left_fit[2]
-    right_fitx = right_fit[0]*ploty**2 + right_fit[1]*ploty + right_fit[2]
-
-    # Create an image to draw the lines on
-    warp_zero = np.zeros_like(binary_warped).astype(np.uint8)
-    color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
-
-    # Recast the x and y points into usable format for cv2.fillPoly()
-    pts_left = np.array([np.transpose(np.vstack([left_fitx, ploty]))])
-    pts_right = np.array([np.flipud(np.transpose(np.vstack([right_fitx, ploty])))])
-    pts = np.hstack((pts_left, pts_right))
-
-    # Draw the lane onto the warped blank image
-    cv2.fillPoly(color_warp, np.int_([pts]), (0,255, 0))
-
-    # Warp the blank back to original image space using inverse perspective matrix (Minv)
-    newwarp = warp(color_warp, M_inv) 
-
-    return newwarp
-
-
 def find_lane(binary_warped):
     # Assuming you have created a warped binary image called "binary_warped"
     # Take a histogram of the bottom half of the image
@@ -291,7 +265,53 @@ def find_lane(binary_warped):
     # Fit a second order polynomial to each
     left_fit = np.polyfit(lefty, leftx, 2)
     right_fit = np.polyfit(righty, rightx, 2)
-    return left_fit, right_fit
+
+
+    # Define conversions in x and y from pixels space to meters
+    ym_per_pix = 30/720 # meters per pixel in y dimension
+    xm_per_pix = 3.7/700 # meters per pixel in x dimension
+    y_eval_left = (max(lefty) + min(lefty))/2
+    y_eval_right = (max(righty) + min(righty))/2
+    # Fit new polynomials to x,y in world space
+    left_fit_cr = np.polyfit(lefty*ym_per_pix, leftx*xm_per_pix, 2)
+    right_fit_cr = np.polyfit(righty*ym_per_pix, rightx*xm_per_pix, 2)
+    # Calculate the new radii of curvature
+    left_curverad = ((1 + (2*left_fit_cr[0]*y_eval_left*ym_per_pix + left_fit_cr[1])**2)**1.5) / np.absolute(2*left_fit_cr[0])
+    right_curverad = ((1 + (2*right_fit_cr[0]*y_eval_right*ym_per_pix + right_fit_cr[1])**2)**1.5) / np.absolute(2*right_fit_cr[0])
+    # Now our radius of curvature is in meters
+    # Example values: 632.1 m    626.2 m
+    return left_fit, right_fit, left_curverad, right_curverad
+
+def draw_lane(binary_warped):
+    left_fit, right_fit, left_curve, right_curve = find_lane(binary_warped)
+
+    # Generate x and y values for plotting
+    ploty = np.linspace(0, binary_warped.shape[0]-1, binary_warped.shape[0] )
+    left_fitx = left_fit[0]*ploty**2 + left_fit[1]*ploty + left_fit[2]
+    right_fitx = right_fit[0]*ploty**2 + right_fit[1]*ploty + right_fit[2]
+
+    # Create an image to draw the lines on
+    warp_zero = np.zeros_like(binary_warped).astype(np.uint8)
+    color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
+
+    # Recast the x and y points into usable format for cv2.fillPoly()
+    pts_left = np.array([np.transpose(np.vstack([left_fitx, ploty]))])
+    pts_right = np.array([np.flipud(np.transpose(np.vstack([right_fitx, ploty])))])
+    pts = np.hstack((pts_left, pts_right))
+
+    # Draw the lane onto the warped blank image
+    cv2.fillPoly(color_warp, np.int_([pts]), (0, 80, 0))
+
+    # Warp the blank back to original image space using inverse perspective matrix (Minv)
+    newwarp = warp(color_warp, M_inv) 
+
+    cv2.putText(newwarp, pprint_curv(left_curve), (150, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
+    cv2.putText(newwarp, pprint_curv(right_curve), (800, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
+
+    return newwarp
+
+def pprint_curv(num):
+    return "Curv: {:,.2f}".format(num)
 
 def pipeline(img,
              return_bin_threshold = False,
@@ -335,7 +355,7 @@ def pipeline(img,
     lane_drawing = draw_lane(combined)
 
     # Combine the result with the original image
-    result = cv2.addWeighted(undistorted, 1, lane_drawing, 0.3, 0)
+    result = cv2.addWeighted(undistorted, 1, lane_drawing, 1, 0)
     
 
     return result
