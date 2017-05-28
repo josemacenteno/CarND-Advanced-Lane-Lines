@@ -83,10 +83,30 @@ for image_name in glob.glob('./test_images/*.jpg'):
         cv2.waitKey(50)
 
 #Aplying binary thresholding to all test images
-print("Applying pipeline to test images from ./test_images/...")
+print("Applying bin_threshold to test images from ./test_images/...")
 for image_name in glob.glob('./test_images/test*.jpg'):
     image = rgb_read(image_name)
     bin_thres = pipeline(image, return_bin_threshold = True)
+
+    small = cv2.resize(cv2.imread(image_name),(256, 144))
+    small_p = cv2.resize(bin_thres,(256, 144))
+
+    output_name = "./output_images/bin_thres/original_" + image_name.split('/')[-1]
+    cv2.imwrite(output_name, small)
+    output_name = "./output_images/bin_thres/bin_" + image_name.split('/')[-1]
+    cv2.imwrite(output_name, small_p)
+
+    output_name = "./output_images/bin_thres/" + image_name.split('/')[-1]
+    cv2.imwrite(output_name, bin_thres)
+
+    cv2.imshow('img',bin_thres)
+    cv2.waitKey(50)
+
+#Adentifying polynomial in test images
+print("Applying bin_threshold to test images from ./test_images/...")
+for image_name in glob.glob('./test_images/test*.jpg'):
+    image = rgb_read(image_name)
+    bin_thres = pipeline(image, return_poly= True)
 
     small = cv2.resize(cv2.imread(image_name),(256, 144))
     small_p = cv2.resize(bin_thres,(256, 144))

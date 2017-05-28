@@ -275,15 +275,23 @@ def find_lane(binary_warped):
     # Fit new polynomials to x,y in world space
     left_fit_cr = np.polyfit(lefty*ym_per_pix, leftx*xm_per_pix, 2)
     right_fit_cr = np.polyfit(righty*ym_per_pix, rightx*xm_per_pix, 2)
+
+    max_y = 719
+    left_lane_base = left_fit[0]*max_y**2 + left_fit[1]*max_y + left_fit[2]
+    right_lane_base = right_fit[0]*max_y**2 + right_fit[1]*max_y + right_fit[2]
+    center_pix = (left_lane_base + right_lane_base) / 2
+    distance_to_center = (640-center_pix * xm_per_pix)
+
+
     # Calculate the new radii of curvature
     left_curverad = ((1 + (2*left_fit_cr[0]*y_eval_left*ym_per_pix + left_fit_cr[1])**2)**1.5) / np.absolute(2*left_fit_cr[0])
     right_curverad = ((1 + (2*right_fit_cr[0]*y_eval_right*ym_per_pix + right_fit_cr[1])**2)**1.5) / np.absolute(2*right_fit_cr[0])
     # Now our radius of curvature is in meters
     # Example values: 632.1 m    626.2 m
-    return left_fit, right_fit, left_curverad, right_curverad
+    return left_fit, right_fit, left_curverad, right_curverad, distance_to_center
 
 def draw_lane(binary_warped):
-    left_fit, right_fit, left_curve, right_curve = find_lane(binary_warped)
+    left_fit, right_fit, left_curve, right_curve, distance_to_center = find_lane(binary_warped)
 
     # Generate x and y values for plotting
     ploty = np.linspace(0, binary_warped.shape[0]-1, binary_warped.shape[0] )
@@ -306,14 +314,23 @@ def draw_lane(binary_warped):
     newwarp = warp(color_warp, M_inv) 
 
     cv2.putText(newwarp, pprint_curv((left_curve+right_curve)/2), (100, 60), cv2.FONT_HERSHEY_COMPLEX, 1, (255,255,255), 2)
+    cv2.putText(newwarp, pprint_dist(distance_to_center), (100, 120), cv2.FONT_HERSHEY_COMPLEX, 1, (255,255,255), 2)
 
     return newwarp
 
 def pprint_curv(num):
     return "Radius of Curvature: {:,.2f}".format(num)
 
+def pprint_dist(num):
+    if num < 0:
+        side = "left"
+    else:
+        side = "right"
+    return "Vehicle is {:,.2f} m ".format(abs(num)) + side + "from center"
+
 def pipeline(img,
              return_bin_threshold = False,
+             return_poly = False,
              hthresh = (16, 23),
              lthresh = (209, 250),
              sthresh = (140, 250),
@@ -349,7 +366,9 @@ def pipeline(img,
 
     if return_bin_threshold:
         return  gray_combined
-        
+    
+    # if return_poly:
+    #     return find_poly(return_image=True)
 
     lane_drawing = draw_lane(combined)
 
