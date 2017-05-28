@@ -88,7 +88,7 @@ for image_name in glob.glob('./test_images/test*.jpg'):
     image = rgb_read(image_name)
     bin_thres = pipeline(image, return_bin_threshold = True)
 
-    small = cv2.resize(image,(256, 144))
+    small = cv2.resize(cv2.imread(image_name),(256, 144))
     small_p = cv2.resize(bin_thres,(256, 144))
 
     output_name = "./output_images/bin_thres/original_" + image_name.split('/')[-1]

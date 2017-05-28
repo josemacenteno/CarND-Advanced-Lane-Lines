@@ -305,13 +305,12 @@ def draw_lane(binary_warped):
     # Warp the blank back to original image space using inverse perspective matrix (Minv)
     newwarp = warp(color_warp, M_inv) 
 
-    cv2.putText(newwarp, pprint_curv(left_curve), (150, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
-    cv2.putText(newwarp, pprint_curv(right_curve), (800, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2)
+    cv2.putText(newwarp, pprint_curv((left_curve+right_curve)/2), (100, 60), cv2.FONT_HERSHEY_COMPLEX, 1, (255,255,255), 2)
 
     return newwarp
 
 def pprint_curv(num):
-    return "Curv: {:,.2f}".format(num)
+    return "Radius of Curvature: {:,.2f}".format(num)
 
 def pipeline(img,
              return_bin_threshold = False,
