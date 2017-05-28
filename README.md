@@ -64,6 +64,18 @@ The goals / steps of this project are the following:
 [wsl_1]: ./output_images/warped/warp_straight_lines1.jpg "Warped Straight lines 1"
 
 
+[poly_o_1]:  ./output_images/poly/original_test1.jpg "Test Image 1"
+[poly_f_1]: ./output_images/poly/poly_straight_test1.jpg "Polynomial fit 1"
+[poly_o_2]:  ./output_images/poly/original_test1.jpg "Test Image 2"
+[poly_f_2]: ./output_images/poly/poly_straight_test1.jpg "Polynomial fit 2"
+[poly_o_3]:  ./output_images/poly/original_test1.jpg "Test Image 3"
+[poly_f_3]: ./output_images/poly/poly_straight_test1.jpg "Polynomial fit 3"
+[poly_o_4]:  ./output_images/poly/original_test1.jpg "Test Image 4"
+[poly_f_4]: ./output_images/poly/poly_straight_test1.jpg "Polynomial fit 4"
+[poly_o_5]:  ./output_images/poly/original_test1.jpg "Test Image 5"
+[poly_f_5]: ./output_images/poly/poly_straight_test1.jpg "Polynomial fit 5"
+
+
 [image3]: ./examples/binary_combo_example.jpg "Binary Example"
 [image4]: ./examples/warped_straight_lines.jpg "Warp Example"
 [image5]: ./examples/color_fit_lines.jpg "Fit Visual"
@@ -190,7 +202,15 @@ I did this in lines # through # in my code in `my_other_file.py`
 
 I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
 
-![alt text][image6]
+![alt text][poly_o_1]        ![alt text][poly_f_1]
+
+![alt text][poly_o_2]        ![alt text][poly_f_2]
+
+![alt text][poly_o_3]        ![alt text][poly_f_3]
+
+![alt text][poly_o_4]        ![alt text][poly_f_4]
+
+![alt text][poly_o_5]        ![alt text][poly_f_5]
 
 ---
 
