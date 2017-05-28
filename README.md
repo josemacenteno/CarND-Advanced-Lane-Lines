@@ -225,15 +225,15 @@ The code to calculate the radius of curvature and distance from center is in the
 
 I implemented this step in lines 295 through 330 in my code in `pipeline.py` in the function raw_lane()`. Here are examples of my results on the test images:
 
-![alt text][poly_o_1]        ![alt text][poly_f_1]
+![alt text][pipe_o_1]        ![alt text][pipe_f_1]
 
-![alt text][poly_o_2]        ![alt text][poly_f_2]
+![alt text][pipe_o_2]        ![alt text][pipe_f_2]
 
-![alt text][poly_o_3]        ![alt text][poly_f_3]
+![alt text][pipe_o_3]        ![alt text][pipe_f_3]
 
-![alt text][poly_o_4]        ![alt text][poly_f_4]
+![alt text][pipe_o_4]        ![alt text][pipe_f_4]
 
-![alt text][poly_o_5]        ![alt text][poly_f_5]
+![alt text][pipe_o_5]        ![alt text][pipe_f_5]
 
 ---
 
