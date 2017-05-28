@@ -106,9 +106,7 @@ for image_name in glob.glob('./test_images/test*.jpg'):
 print("Identifying polynomial on test images from ./test_images/...")
 for image_name in glob.glob('./test_images/test*.jpg'):
     image = rgb_read(image_name)
-    poly_rgb = pipeline(image, return_poly= True)
-
-    poly = cv2.cvtColor(poly_rgb, cv2.COLOR_RGB2BGR) 
+    poly = pipeline(image, return_poly= True)
 
     small = cv2.resize(cv2.imread(image_name),(256, 144))
     small_p = cv2.resize(poly,(256, 144))

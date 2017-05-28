@@ -288,10 +288,12 @@ def find_lane(binary_warped):
     right_curverad = ((1 + (2*right_fit_cr[0]*y_eval_right*ym_per_pix + right_fit_cr[1])**2)**1.5) / np.absolute(2*right_fit_cr[0])
     # Now our radius of curvature is in meters
     # Example values: 632.1 m    626.2 m
-    return left_fit, right_fit, left_curverad, right_curverad, distance_to_center
 
-def draw_lane(binary_warped):
-    left_fit, right_fit, left_curve, right_curve, distance_to_center = find_lane(binary_warped)
+
+    return left_fit, right_fit, left_curverad, right_curverad, distance_to_center, left_lane_inds, right_lane_inds
+
+def draw_lane(binary_warped, return_poly = False):
+    left_fit, right_fit, left_curve, right_curve, distance_to_center, left_lane_inds, right_lane_inds = find_lane(binary_warped)
 
     # Generate x and y values for plotting
     ploty = np.linspace(0, binary_warped.shape[0]-1, binary_warped.shape[0] )
@@ -309,6 +311,23 @@ def draw_lane(binary_warped):
 
     # Draw the lane onto the warped blank image
     cv2.fillPoly(color_warp, np.int_([pts]), (0, 80, 0))
+
+    if return_poly:
+        # Generate x and y values for plotting
+        ploty = np.linspace(0, binary_warped.shape[0]-1, binary_warped.shape[0] )
+        left_fitx = left_fit[0]*ploty**2 + left_fit[1]*ploty + left_fit[2]
+        right_fitx = right_fit[0]*ploty**2 + right_fit[1]*ploty + right_fit[2]
+
+        nonzero = binary_warped.nonzero()
+        nonzeroy = np.array(nonzero[0])
+        nonzerox = np.array(nonzero[1])
+        out_img = np.dstack((binary_warped, binary_warped, binary_warped))*255
+        out_img[nonzeroy[left_lane_inds], nonzerox[left_lane_inds]] = [255, 0, 0]
+        out_img[nonzeroy[right_lane_inds], nonzerox[right_lane_inds]] = [0, 0, 255]
+        for yi, lxi, rxi in zip(ploty, left_fitx, right_fitx):
+            out_img[int(yi),int(lxi),:] = [0, 255, 0]
+            out_img[int(yi),int(rxi),:] = [0, 255, 0]
+        return out_img
 
     # Warp the blank back to original image space using inverse perspective matrix (Minv)
     newwarp = warp(color_warp, M_inv) 
@@ -367,8 +386,8 @@ def pipeline(img,
     if return_bin_threshold:
         return  gray_combined
     
-    # if return_poly:
-    #     return find_poly(return_image=True)
+    if return_poly:
+        return draw_lane(combined, return_poly=True)
 
     lane_drawing = draw_lane(combined)
 
@@ -377,4 +396,3 @@ def pipeline(img,
     
 
     return result
-
