@@ -65,16 +65,27 @@ The goals / steps of this project are the following:
 
 
 [poly_o_1]:  ./output_images/poly/original_test1.jpg "Test Image 1"
-[poly_f_1]: ./output_images/poly/poly_straight_test1.jpg "Polynomial fit 1"
+[poly_f_1]: ./output_images/poly/poly_test1.jpg "Polynomial fit 1"
 [poly_o_2]:  ./output_images/poly/original_test1.jpg "Test Image 2"
-[poly_f_2]: ./output_images/poly/poly_straight_test1.jpg "Polynomial fit 2"
+[poly_f_2]: ./output_images/poly/poly_test1.jpg "Polynomial fit 2"
 [poly_o_3]:  ./output_images/poly/original_test1.jpg "Test Image 3"
-[poly_f_3]: ./output_images/poly/poly_straight_test1.jpg "Polynomial fit 3"
+[poly_f_3]: ./output_images/poly/poly_test1.jpg "Polynomial fit 3"
 [poly_o_4]:  ./output_images/poly/original_test1.jpg "Test Image 4"
-[poly_f_4]: ./output_images/poly/poly_straight_test1.jpg "Polynomial fit 4"
+[poly_f_4]: ./output_images/poly/poly_test1.jpg "Polynomial fit 4"
 [poly_o_5]:  ./output_images/poly/original_test1.jpg "Test Image 5"
-[poly_f_5]: ./output_images/poly/poly_straight_test1.jpg "Polynomial fit 5"
+[poly_f_5]: ./output_images/poly/poly_test1.jpg "Polynomial fit 5"
 
+
+[pipe_o_1]:  ./output_images/pipelined/original_test1.jpg "Test Image 1"
+[pipe_f_1]: ./output_images/pipelined/pipe_test1.jpg "Pipelined Image 1"
+[pipe_o_2]:  ./output_images/pipelined/original_test1.jpg "Test Image 2"
+[pipe_f_2]: ./output_images/pipelined/pipe_test1.jpg "Pipelined Image 2"
+[pipe_o_3]:  ./output_images/pipelined/original_test1.jpg "Test Image 3"
+[pipe_f_3]: ./output_images/pipelined/pipe_test1.jpg "Pipelined Image 3"
+[pipe_o_4]:  ./output_images/pipelined/original_test1.jpg "Test Image 4"
+[pipe_f_4]: ./output_images/pipelined/pipe_test1.jpg "Pipelined Image 4"
+[pipe_o_5]:  ./output_images/pipelined/original_test1.jpg "Test Image 5"
+[pipe_f_5]: ./output_images/pipelined/pipe_test1.jpg "Pipelined Image 5"
 
 [image3]: ./examples/binary_combo_example.jpg "Binary Example"
 [image4]: ./examples/warped_straight_lines.jpg "Warp Example"
@@ -118,7 +129,7 @@ I then used the output `objpoints` and `imgpoints` to compute the camera calibra
 ### Pipeline (single images)
 
 #### 1. Provide an example of a distortion-corrected image.
-To demonstrate this step, I will show all the test images before and after applying distortion correction. The calibration is applied in `pipeline.py`, by the function `cal_undistort() in lines 47 through 54`
+To demonstrate this step, I will show all the test images before and after applying distortion correction. The calibration is applied in `pipeline.py`, by the function `cal_undistort()` in lines 47 through 54
 
 
 ![alt text][test_d1]        ![alt text][test_u1]
@@ -135,7 +146,7 @@ To demonstrate this step, I will show all the test images before and after apply
 
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
-Test5 image is the most difficult frame since it contains shadows and two different pavement colors. I used a script to test each gradient and hls color map separately, iterating through 25 possible values for each threshold. I chose each threshold individually and combined them using boolean logic to try to keep as much of the line as possible, while minimizing the background white pixels. (thresholding steps are part of the pipeline method in `pipeline.py` lines 367 through 379).  Here's the result of passing all the test images through the filters:
+Test5 image is the most difficult frame since it contains shadows and two different pavement colors. I used a script to test each gradient and hls color map separately, iterating through 25 possible values for each threshold. I chose each threshold individually and combined them using boolean logic to try to keep as much of the line as possible, while minimizing the background white pixels. (thresholding steps are part of the `pipeline()` method in `pipeline.py` lines 367 through 379).  Here's the result of passing all the test images through the filters:
 
 ![alt text][bin_o1]        ![alt text][bin_t1]
 
