@@ -286,9 +286,6 @@ def find_lane(binary_warped):
     # Calculate the new radii of curvature
     left_curverad = ((1 + (2*left_fit_cr[0]*y_eval_left*ym_per_pix + left_fit_cr[1])**2)**1.5) / np.absolute(2*left_fit_cr[0])
     right_curverad = ((1 + (2*right_fit_cr[0]*y_eval_right*ym_per_pix + right_fit_cr[1])**2)**1.5) / np.absolute(2*right_fit_cr[0])
-    # Now our radius of curvature is in meters
-    # Example values: 632.1 m    626.2 m
-
 
     return left_fit, right_fit, left_curverad, right_curverad, distance_to_center, left_lane_inds, right_lane_inds
 

@@ -118,7 +118,7 @@ I then used the output `objpoints` and `imgpoints` to compute the camera calibra
 ### Pipeline (single images)
 
 #### 1. Provide an example of a distortion-corrected image.
-To demonstrate this step, I will show all the test images before and after applying distortion correction in `pipeline.py`
+To demonstrate this step, I will show all the test images before and after applying distortion correction. The calibration is applied in `pipeline.py`, by the function `cal_undistort() in lines 47 through 54`
 
 
 ![alt text][test_d1]        ![alt text][test_u1]
@@ -135,7 +135,7 @@ To demonstrate this step, I will show all the test images before and after apply
 
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
-Test5 image is the most difficult frame since it contains shadows and two different pavement colors. I used a script to test each gradient and hls color map separately, iterating through 25 possible values for each threshold. I choose each threshold individually and combined them using boolean logic to try to keep as much of the line as possible, while minimizing the background white pixels. (thresholding steps at the pipeline method in in `pipeline.py`).  Here's the result of passing all the test images through the filters:
+Test5 image is the most difficult frame since it contains shadows and two different pavement colors. I used a script to test each gradient and hls color map separately, iterating through 25 possible values for each threshold. I chose each threshold individually and combined them using boolean logic to try to keep as much of the line as possible, while minimizing the background white pixels. (thresholding steps are part of the pipeline method in `pipeline.py` lines 367 through 379).  Here's the result of passing all the test images through the filters:
 
 ![alt text][bin_o1]        ![alt text][bin_t1]
 
@@ -190,17 +190,29 @@ I verified that my perspective transform was working as expected by drawing the 
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+I implemented this step in lines 200 through 346s in my code in `pipeline.py` in the functions `draw lane() and find_lane()`. I used the polyfit math function to model the lane markers as a second order polynomial. A sliding window approach is used to identified the pixels that belong to lane markers. The sliding window is guided by the highest values in a histogram from the X-axis, which counts how many pixels where identified by the previous steps as being part of a clear line. Here are examples of my results on the test images:
 
-![alt text][image5]
+
+![alt text][poly_o_1]        ![alt text][poly_f_1]
+
+![alt text][poly_o_2]        ![alt text][poly_f_2]
+
+![alt text][poly_o_3]        ![alt text][poly_f_3]
+
+![alt text][poly_o_4]        ![alt text][poly_f_4]
+
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-I did this in lines # through # in my code in `my_other_file.py`
+To calculate the radius of curvature I used te technique suggested in class. The pixels that belong to the line are transformed to real world space by using a pixel to meter conversion factor. The coordinates in meters go into a polyfit math function to model each lane marker a second degree polynomial. The polynomial is then used to calculate the radius of curvature from the left and right lines. On the processed video the average curvature is displayed. 
+
+The distance to center is calculated based on the polynomial fit for the lines evaluated at the bottom of the image (y coordinate = 719). The center of the car is assumed to be at the 640th pixel. The center of the lane is the average x-coordinate of the two lanes at the bottom of the image. The distance is then converted from pixels to meters and displayed in the video.
+
+The code to calculate the radius of curvature and distance from center is in the `pipeline.py` file, inside the find_lane() method, lines 270 to 288. 
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+I implemented this step in lines 295 through 330 in my code in `pipeline.py` in the function raw_lane()`. Here are examples of my results on the test images:
 
 ![alt text][poly_o_1]        ![alt text][poly_f_1]
 
@@ -229,5 +241,10 @@ Here's my final video:
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+My first approach did not include HLS color space threshold. This had a lot of problems when shadows from trees appear, but worked OK for an homogenious road. The H and S channels complement each other to overcome situations with shadows. In general I also had to readjust the settings multiple times as I progressed and realized my original threshold was not good enough after the next step. 
 
+The main pitfall my final implementation will find is that the Region of Interest used for the warp matrix definition is fixed. This assumes the car never leaves the lane, and will fail under a more curvy road than a highway. 
+
+Also, the light conditions for the project are really good (sunny day), this will fail under almost any other kind of lighting since the thresholds chosen are unflexible and they were calibrated only on sunny test images.
+
+If I would pursue the project further I would widden the region of interest more. I would also store previous detections and use them as a prediction of where the next lanes can be expected. Reusing previous detections can help make the Region Of Interest more flexible, remove some "jumpiness" and discard false detections on more severe circumstances.
