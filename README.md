@@ -220,7 +220,7 @@ I implemented this step in lines # through # in my code in `yet_another_file.py`
 
 Here's my final video:
 
- [![VIDEO_RESULT](http://img.youtube.com/vi/arabgunqHfA/0.jpg)](http://www.youtube.com/watch?v=arabgunqHfA)
+ [![VIDEO_RESULT](http://img.youtube.com/vi/Q4e57NkkWHc/0.jpg)](https://youtu.be/Q4e57NkkWHc)
 
 
 ---
