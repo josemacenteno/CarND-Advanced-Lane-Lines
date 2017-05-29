@@ -88,7 +88,7 @@ for image_name in glob.glob('./test_images/test*.jpg'):
     image = rgb_read(image_name)
     bin_thres = pipeline(image, return_bin_threshold = True)
 
-    small = cv2.resize(cv2.imread(image_name),(256, 144))
+    small = cv2.resize(cv2.imread(image_name),(256 , 144))
     small_p = cv2.resize(bin_thres,(256, 144))
 
     output_name = "./output_images/bin_thres/original_" + image_name.split('/')[-1]
@@ -143,4 +143,59 @@ for image_name in glob.glob('./test_images/test*.jpg'):
 
     cv2.imshow('img',pipelined)
     cv2.waitKey(50)
+
+
+
+
+# #Identifying polynomial in test images
+# print("Identifying polynomial on test images from ./video_clip/...")
+# for image_name in glob.glob('./video_clip/video*.jpg'):
+#     image = rgb_read(image_name)
+#     print(image_name)
+#     poly = pipeline(image, return_poly= True,
+#          gthresh = (128, 255),
+#          hthresh = (16, 23),
+#          lthresh = (209, 250),
+#          sthresh = (140, 250),
+#          xthresh = (20, 60),
+#          ythresh = (30, 120),
+#          mthresh = (50, 150),
+#          tthresh = (0.60, 1.4)
+#         )
+
+#     small = cv2.resize(cv2.imread(image_name),(256, 144))
+#     small_p = cv2.resize(poly,(256, 144))
+
+#     output_name = "./output_images/poly_video/original_" + image_name.split('/')[-1]
+#     cv2.imwrite(output_name, small)
+#     output_name = "./output_images/poly_video/poly_" + image_name.split('/')[-1]
+#     cv2.imwrite(output_name, small_p)
+
+#     output_name = "./output_images/poly_video/" + image_name.split('/')[-1]
+#     cv2.imwrite(output_name, poly)
+
+#     cv2.imshow('img',poly)
+#     cv2.waitKey(50)
+
+
+# #Aplying pipeline to all test images
+# print("Applying pipeline to test images from ./video_clip/...")
+# for image_name in glob.glob('./video_clip/video*.jpg'):
+#     image =  rgb_read(image_name) 
+#     pipelined_rgb = pipeline(image)
+
+#     pipelined = cv2.cvtColor(pipelined_rgb, cv2.COLOR_RGB2BGR) 
+#     small = cv2.resize(cv2.imread(image_name),(256, 144))
+#     small_p = cv2.resize(pipelined,(256, 144))
+
+#     output_name = "./output_images/pipelined_video/original_" + image_name.split('/')[-1]
+#     cv2.imwrite(output_name, small)
+#     output_name = "./output_images/pipelined_video/piped_" + image_name.split('/')[-1]
+#     cv2.imwrite(output_name, small_p)
+
+#     output_name = "./output_images/pipelined_video/" + image_name.split('/')[-1]
+#     cv2.imwrite(output_name, pipelined)
+
+#     cv2.imshow('img',pipelined)
+#     cv2.waitKey(50)
 

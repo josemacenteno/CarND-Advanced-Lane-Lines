@@ -20,6 +20,10 @@ with open(coeff_in_path, 'rb') as p_in:
 print("Calculating distorsion matrix")
 first_image = cv2.imread('./test_images/test1.jpg')  
 image_shape = (first_image.shape[1], first_image.shape[0])
+last_fit = None
+
+left_curverad = None
+right_curverad = None
 
 Y_TOP = image_shape[1] * 0.64 
 Y_BOTTOM = image_shape[1]
@@ -33,10 +37,10 @@ roi_src = np.int32(
     [ (image_shape[0] * 0.89), Y_BOTTOM],
     [ (image_shape[0] * 0.5) + TOP_W_HALF + TOP_SHIFT, Y_TOP]])
 roi_dst = np.int32(
-    [[(image_shape[0] * 0.25), 0],
-    [ (image_shape[0] * 0.25), image_shape[1]],
-    [ (image_shape[0] * 0.75), image_shape[1]],
-    [ (image_shape[0] * 0.75), 0]])
+    [[(image_shape[0] * 0.15), 0],
+    [ (image_shape[0] * 0.15), image_shape[1]],
+    [ (image_shape[0] * 0.85), image_shape[1]],
+    [ (image_shape[0] * 0.85), 0]])
 
 print(image_shape, Y_BOTTOM, Y_TOP, TOP_W_HALF)
 print("roi_src:", roi_src, "roi_dst:", roi_dst)
@@ -142,6 +146,18 @@ def dir_threshold(img, sobel_kernel=3, thresh=(0.8, 1.25), gray=False):
 
     # 6) Return this mask as your dir_binary image
     return dir_binary
+
+def gray_threshold(img, thresh=(0, 255)):
+    # 1) Convert to HLS color space
+    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    
+    # 3) Return a binary image of threshold result
+    img_bin = np.zeros_like(gray)
+    lt = gray > thresh[0]
+    ht = gray <= thresh[1]
+    in_t = lt & ht
+    img_bin[in_t] = 1
+    return img_bin
 
 
 # Define a function that thresholds the S-channel of HLS
@@ -284,9 +300,24 @@ def find_lane(binary_warped):
 
 
     # Calculate the new radii of curvature
-    left_curverad = ((1 + (2*left_fit_cr[0]*y_eval_left*ym_per_pix + left_fit_cr[1])**2)**1.5) / np.absolute(2*left_fit_cr[0])
-    right_curverad = ((1 + (2*right_fit_cr[0]*y_eval_right*ym_per_pix + right_fit_cr[1])**2)**1.5) / np.absolute(2*right_fit_cr[0])
+    left_curverad_new = ((1 + (2*left_fit_cr[0]*y_eval_left*ym_per_pix + left_fit_cr[1])**2)**1.5) / np.absolute(2*left_fit_cr[0])
+    right_curverad_new = ((1 + (2*right_fit_cr[0]*y_eval_right*ym_per_pix + right_fit_cr[1])**2)**1.5) / np.absolute(2*right_fit_cr[0])
+    
+    global left_curverad, right_curverad, last_fit
 
+    if left_curverad_new > 250 and right_curverad_new > 250:
+        last_fit = (left_fit, right_fit)
+    else:
+        left_fit = last_fit[0]
+        right_fit = last_fit[1]
+
+    if left_curverad_new > 250:
+        left_curverad = left_curverad_new
+
+    if right_curverad_new > 250:
+        right_curverad = left_curverad_new
+
+    # print(left_curverad, right_curverad)
     return left_fit, right_fit, left_curverad, right_curverad, distance_to_center, left_lane_inds, right_lane_inds
 
 def draw_lane(binary_warped, return_poly = False):
@@ -322,8 +353,10 @@ def draw_lane(binary_warped, return_poly = False):
         out_img[nonzeroy[left_lane_inds], nonzerox[left_lane_inds]] = [255, 0, 0]
         out_img[nonzeroy[right_lane_inds], nonzerox[right_lane_inds]] = [0, 0, 255]
         for yi, lxi, rxi in zip(ploty, left_fitx, right_fitx):
-            out_img[int(yi),int(lxi),:] = [0, 255, 0]
-            out_img[int(yi),int(rxi),:] = [0, 255, 0]
+            if lxi < 1280:
+                out_img[int(yi),int(lxi),:] = [0, 255, 0]
+            if rxi < 1280:
+                out_img[int(yi),int(rxi),:] = [0, 255, 0]
         return out_img
 
     # Warp the blank back to original image space using inverse perspective matrix (Minv)
@@ -347,6 +380,7 @@ def pprint_dist(num):
 def pipeline(img,
              return_bin_threshold = False,
              return_poly = False,
+             gthresh = (128, 255),
              hthresh = (16, 23),
              lthresh = (209, 250),
              sthresh = (140, 250),
@@ -359,15 +393,10 @@ def pipeline(img,
     
     undistorted = cal_undistort(img, p_mtx, p_dist)
 
-    if return_bin_threshold:
-        warped = undistorted
-    else:
-        warped = warp(undistorted, M)
-
-    h_bin = hls_select(warped, thresh=hthresh, index=0)
-    l_bin = hls_select(warped, thresh=lthresh, index=1)
-    s_bin = hls_select(warped, thresh=sthresh, index=2)
-    gray = cv2.cvtColor(warped, cv2.COLOR_RGB2GRAY)
+    h_bin = hls_select(undistorted, thresh=gthresh)
+    l_bin = hls_select(undistorted, thresh=lthresh, index=1)
+    s_bin = hls_select(undistorted, thresh=sthresh, index=2)
+    gray = cv2.cvtColor(undistorted, cv2.COLOR_RGB2GRAY)
     gradx = abs_sobel_thresh(gray, orient='x', sobel_kernel=ksize, thresh=xthresh, gray=True)
     grady = abs_sobel_thresh(gray, orient='y', sobel_kernel=ksize, thresh=ythresh, gray=True)
     mag_binary = mag_thresh(gray, sobel_kernel=ksize, mag_thresh=mthresh, gray=True)
@@ -378,15 +407,17 @@ def pipeline(img,
              ((s_bin == 1) & ((h_bin == 1) | (l_bin== 1))) ]         \
                                                           = np.uint8(1)
     gray_combined = 255 * combined
-    three_chan = np.dstack((gray_combined, gray_combined, gray_combined))
 
     if return_bin_threshold:
         return  gray_combined
-    
-    if return_poly:
-        return draw_lane(combined, return_poly=True)
 
-    lane_drawing = draw_lane(combined)
+    three_chan = np.dstack((gray_combined, gray_combined, gray_combined))
+    warped = np.uint8(warp(three_chan, M))
+    bin_warped = gray_threshold(warped, thresh=gthresh)
+    if return_poly:
+        return draw_lane(bin_warped, return_poly=True)
+
+    lane_drawing = draw_lane(bin_warped)
 
     # Combine the result with the original image
     result = cv2.addWeighted(undistorted, 1, lane_drawing, 1, 0)
