@@ -61,14 +61,14 @@ The goals / steps of this project are the following:
 
 [poly_o_1]:  ./output_images/poly/original_test1.jpg "Test Image 1"
 [poly_f_1]: ./output_images/poly/poly_test1.jpg "Polynomial fit 1"
-[poly_o_2]:  ./output_images/poly/original_test1.jpg "Test Image 2"
-[poly_f_2]: ./output_images/poly/poly_test1.jpg "Polynomial fit 2"
-[poly_o_3]:  ./output_images/poly/original_test1.jpg "Test Image 3"
-[poly_f_3]: ./output_images/poly/poly_test1.jpg "Polynomial fit 3"
-[poly_o_4]:  ./output_images/poly/original_test1.jpg "Test Image 4"
-[poly_f_4]: ./output_images/poly/poly_test1.jpg "Polynomial fit 4"
-[poly_o_5]:  ./output_images/poly/original_test1.jpg "Test Image 5"
-[poly_f_5]: ./output_images/poly/poly_test1.jpg "Polynomial fit 5"
+[poly_o_2]:  ./output_images/poly/original_test2.jpg "Test Image 2"
+[poly_f_2]: ./output_images/poly/poly_test2.jpg "Polynomial fit 2"
+[poly_o_3]:  ./output_images/poly/original_test3.jpg "Test Image 3"
+[poly_f_3]: ./output_images/poly/poly_test3.jpg "Polynomial fit 3"
+[poly_o_4]:  ./output_images/poly/original_test4.jpg "Test Image 4"
+[poly_f_4]: ./output_images/poly/poly_test4.jpg "Polynomial fit 4"
+[poly_o_5]:  ./output_images/poly/original_test5.jpg "Test Image 5"
+[poly_f_5]: ./output_images/poly/poly_test5.jpg "Polynomial fit 5"
 
 
 [pipe_o_1]:  ./output_images/pipelined/original_test1.jpg "Test Image 1"
