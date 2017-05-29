@@ -141,7 +141,7 @@ To demonstrate this step, I will show all the test images before and after apply
 
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
-Test5 image is the most difficult frame since it contains shadows and two different pavement colors. I used a script to test each gradient and hls color map separately, iterating through 25 possible values for each threshold. I chose each threshold individually and combined them using boolean logic to try to keep as much of the line as possible, while minimizing the background white pixels. (thresholding steps are part of the `pipeline()` method in `pipeline.py` lines 367 through 379).  Here's the result of passing all the test images through the filters:
+Test5 image is the most difficult frame since it contains shadows and two different pavement colors. I used a script to test each gradient and hls color map separately, iterating through 25 possible values for each threshold. I chose each threshold individually and combined them using boolean logic to try to keep as much of the line as possible, while minimizing the background white pixels. (thresholding steps are part of the `pipeline()` method in `pipeline.py` lines 368 through 414).  Here's the result of passing all the test images through the filters:
 
 ![alt text][bin_o1]        ![alt text][bin_t1]
 
@@ -218,7 +218,7 @@ The code to calculate the radius of curvature and distance from center is in the
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-I implemented this step in lines 295 through 330 in my code in `pipeline.py` in the function raw_lane()`. Here are examples of my results on the test images:
+I implemented this step in lines 311 through 356 in my code in `pipeline.py` in the function `draw_lane()`. Here are examples of my results on the test images:
 
 ![alt text][pipe_o_1]        ![alt text][pipe_f_1]
 

@@ -147,18 +147,6 @@ def dir_threshold(img, sobel_kernel=3, thresh=(0.8, 1.25), gray=False):
     # 6) Return this mask as your dir_binary image
     return dir_binary
 
-def gray_threshold(img, thresh=(0, 255)):
-    # 1) Convert to HLS color space
-    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    
-    # 3) Return a binary image of threshold result
-    img_bin = np.zeros_like(gray)
-    lt = gray > thresh[0]
-    ht = gray <= thresh[1]
-    in_t = lt & ht
-    img_bin[in_t] = 1
-    return img_bin
-
 
 # Define a function that thresholds the S-channel of HLS
 # Use exclusive lower bound (>) and inclusive upper (<=)
@@ -424,3 +412,15 @@ def pipeline(img,
     
 
     return result
+
+def gray_threshold(img, thresh=(0, 255)):
+    # 1) Convert to HLS color space
+    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    
+    # 3) Return a binary image of threshold result
+    img_bin = np.zeros_like(gray)
+    lt = gray > thresh[0]
+    ht = gray <= thresh[1]
+    in_t = lt & ht
+    img_bin[in_t] = 1
+    return img_bin
